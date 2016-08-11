@@ -308,7 +308,6 @@ bool BootCore(const std::string& _rFilename)
             source >= WIIMOTE_SRC_NONE && source <= WIIMOTE_SRC_HYBRID)
         {
           config_cache.bSetWiimoteSource[i] = true;
-          g_wiimote_sources[i] = source;
           WiimoteReal::ChangeWiimoteSource(i, source);
         }
       }
@@ -317,7 +316,6 @@ bool BootCore(const std::string& _rFilename)
           (source == WIIMOTE_SRC_NONE || source == WIIMOTE_SRC_REAL))
       {
         config_cache.bSetWiimoteSource[WIIMOTE_BALANCE_BOARD] = true;
-        g_wiimote_sources[WIIMOTE_BALANCE_BOARD] = source;
         WiimoteReal::ChangeWiimoteSource(WIIMOTE_BALANCE_BOARD, source);
       }
     }
