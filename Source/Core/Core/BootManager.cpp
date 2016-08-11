@@ -85,7 +85,7 @@ private:
   std::string strBackend;
   std::string sBackend;
   std::string m_strGPUDeterminismMode;
-  std::array<int, MAX_BBMOTES> iWiimoteSource;
+  std::array<WiimoteSource, MAX_BBMOTES> iWiimoteSource;
   std::array<SIDevices, MAX_SI_CHANNELS> Pads;
   std::array<TEXIDevices, MAX_EXI_CHANNELS> m_EXIDevice;
 };
@@ -308,7 +308,7 @@ bool BootCore(const std::string& _rFilename)
             source >= WIIMOTE_SRC_NONE && source <= WIIMOTE_SRC_HYBRID)
         {
           config_cache.bSetWiimoteSource[i] = true;
-          WiimoteReal::ChangeWiimoteSource(i, source);
+          WiimoteReal::ChangeWiimoteSource(i, static_cast<WiimoteSource>(source));
         }
       }
       controls_section->Get("WiimoteSourceBB", &source, -1);
@@ -316,7 +316,7 @@ bool BootCore(const std::string& _rFilename)
           (source == WIIMOTE_SRC_NONE || source == WIIMOTE_SRC_REAL))
       {
         config_cache.bSetWiimoteSource[WIIMOTE_BALANCE_BOARD] = true;
-        WiimoteReal::ChangeWiimoteSource(WIIMOTE_BALANCE_BOARD, source);
+        WiimoteReal::ChangeWiimoteSource(WIIMOTE_BALANCE_BOARD, static_cast<WiimoteSource>(source));
       }
     }
   }

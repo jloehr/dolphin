@@ -466,7 +466,7 @@ void ControllerConfigDiag::OnWiimoteSourceChanged(wxCommandEvent& event)
 
   if (index != WIIMOTE_BALANCE_BOARD)
   {
-    WiimoteReal::ChangeWiimoteSource(index, event.GetInt());
+    WiimoteReal::ChangeWiimoteSource(index, static_cast<WiimoteSource>(event.GetInt()));
     if (g_wiimote_sources[index] != WIIMOTE_SRC_EMU &&
         g_wiimote_sources[index] != WIIMOTE_SRC_HYBRID)
       m_wiimote_configure_button[index]->Disable();

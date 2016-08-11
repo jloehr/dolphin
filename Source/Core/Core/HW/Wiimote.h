@@ -23,15 +23,15 @@ enum
 
 #define WIIMOTE_INI_NAME "WiimoteNew"
 
-enum
+enum WiimoteSource : int
 {
-  WIIMOTE_SRC_NONE = 0,
-  WIIMOTE_SRC_EMU = 1,
-  WIIMOTE_SRC_REAL = 2,
-  WIIMOTE_SRC_HYBRID = 3,  // emu + real
+  WIIMOTE_SRC_NONE = 0x00,
+  WIIMOTE_SRC_EMU = 0x01,
+  WIIMOTE_SRC_REAL = 0x02,
+  WIIMOTE_SRC_HYBRID = 0x03,  // emu + real
 };
 
-extern unsigned int g_wiimote_sources[MAX_BBMOTES];
+extern WiimoteSource g_wiimote_sources[MAX_BBMOTES];
 
 namespace Wiimote
 {

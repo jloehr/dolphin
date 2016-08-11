@@ -26,7 +26,7 @@
 
 #include "SFML/Network.hpp"
 
-unsigned int g_wiimote_sources[MAX_BBMOTES];
+WiimoteSource g_wiimote_sources[MAX_BBMOTES];
 
 namespace WiimoteReal
 {
@@ -599,12 +599,12 @@ void LoadSettings()
     secname += (char)('1' + i);
     IniFile::Section& sec = *inifile.GetOrCreateSection(secname);
 
-    sec.Get("Source", &g_wiimote_sources[i], i ? WIIMOTE_SRC_NONE : WIIMOTE_SRC_EMU);
+    sec.Get("Source", (u32*)&g_wiimote_sources[i], i ? WIIMOTE_SRC_NONE : WIIMOTE_SRC_EMU);
   }
 
   std::string secname("BalanceBoard");
   IniFile::Section& sec = *inifile.GetOrCreateSection(secname);
-  sec.Get("Source", &g_wiimote_sources[WIIMOTE_BALANCE_BOARD], WIIMOTE_SRC_NONE);
+  sec.Get("Source", (u32*)&g_wiimote_sources[WIIMOTE_BALANCE_BOARD], WIIMOTE_SRC_NONE);
 }
 
 // config dialog calls this when some settings change
@@ -679,7 +679,7 @@ void Pause()
       wiimote->EmuPause();
 }
 
-void ChangeWiimoteSource(unsigned int index, int source)
+void ChangeWiimoteSource(unsigned int index, WiimoteSource source)
 {
   g_wiimote_sources[index] = source;
   {
