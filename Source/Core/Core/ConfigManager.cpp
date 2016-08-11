@@ -257,7 +257,7 @@ void SConfig::SaveCoreSettings(IniFile& ini)
   core->Set("SlotB", m_EXIDevice[1]);
   core->Set("SerialPort1", m_EXIDevice[2]);
   core->Set("BBA_MAC", m_bba_mac);
-  for (int i = 0; i < MAX_SI_CHANNELS; ++i)
+  for (size_t i = 0; i < MAX_SI_CHANNELS; ++i)
   {
     core->Set(StringFromFormat("SIDevice%i", i), m_SIDevice[i]);
     core->Set(StringFromFormat("AdapterRumble%i", i), m_AdapterRumble[i]);
@@ -265,6 +265,10 @@ void SConfig::SaveCoreSettings(IniFile& ini)
   }
   core->Set("WiiSDCard", m_WiiSDCard);
   core->Set("WiiKeyboard", m_WiiKeyboard);
+  for (size_t i = 0; i < MAX_BBMOTES; ++i)
+  {
+	  core->Set(StringFromFormat("WiimoteSource%i", i), m_WiimoteSource[i]);
+  }
   core->Set("WiimoteContinuousScanning", m_WiimoteContinuousScanning);
   core->Set("WiimoteEnableSpeaker", m_WiimoteEnableSpeaker);
   core->Set("RunCompareServer", bRunCompareServer);
@@ -529,7 +533,7 @@ void SConfig::LoadCoreSettings(IniFile& ini)
   core->Get("BBA_MAC", &m_bba_mac);
   core->Get("TimeProfiling", &bJITILTimeProfiling, false);
   core->Get("OutputIR", &bJITILOutputIR, false);
-  for (int i = 0; i < MAX_SI_CHANNELS; ++i)
+  for (size_t i = 0; i < MAX_SI_CHANNELS; ++i)
   {
     core->Get(StringFromFormat("SIDevice%i", i), (u32*)&m_SIDevice[i],
               (i == 0) ? SIDEVICE_GC_CONTROLLER : SIDEVICE_NONE);
@@ -538,6 +542,10 @@ void SConfig::LoadCoreSettings(IniFile& ini)
   }
   core->Get("WiiSDCard", &m_WiiSDCard, false);
   core->Get("WiiKeyboard", &m_WiiKeyboard, false);
+  for (size_t i = 0; i < MAX_BBMOTES; ++i)
+  {
+	  core->Get(StringFromFormat("WiimoteSource%i", i), (u32*)&m_WiimoteSource[i], (i == 0) ? WIIMOTE_SRC_EMU : WIIMOTE_SRC_NONE);
+  }
   core->Get("WiimoteContinuousScanning", &m_WiimoteContinuousScanning, false);
   core->Get("WiimoteEnableSpeaker", &m_WiimoteEnableSpeaker, false);
   core->Get("RunCompareServer", &bRunCompareServer, false);

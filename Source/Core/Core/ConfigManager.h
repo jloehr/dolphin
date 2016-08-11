@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <array>
 #include <string>
 #include <vector>
 
@@ -11,7 +12,9 @@
 #include "Common/NonCopyable.h"
 #include "Common/SysConf.h"
 #include "Core/HW/EXI_Device.h"
+#include "Core/HW/SI.h"
 #include "Core/HW/SI_Device.h"
+#include "Core/HW/Wiimote.h"
 
 namespace DiscIO
 {
@@ -42,6 +45,7 @@ struct SConfig : NonCopyable
   // Wii Devices
   bool m_WiiSDCard;
   bool m_WiiKeyboard;
+  std::array<WiimoteSource, MAX_BBMOTES> m_WiimoteSource;
   bool m_WiimoteContinuousScanning;
   bool m_WiimoteEnableSpeaker;
 
@@ -206,7 +210,7 @@ struct SConfig : NonCopyable
   std::string m_strGbaCartA;
   std::string m_strGbaCartB;
   TEXIDevices m_EXIDevice[3];
-  SIDevices m_SIDevice[4];
+  std::array<SIDevices, MAX_SI_CHANNELS> m_SIDevice;
   std::string m_bba_mac;
 
   // interface language
@@ -280,8 +284,8 @@ struct SConfig : NonCopyable
 
   // Input settings
   bool m_BackgroundInput;
-  bool m_AdapterRumble[4];
-  bool m_AdapterKonga[4];
+  std::array<bool, MAX_SI_CHANNELS> m_AdapterRumble;
+  std::array<bool, MAX_SI_CHANNELS> m_AdapterKonga;
 
   SysConf* m_SYSCONF;
 

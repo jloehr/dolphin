@@ -358,9 +358,7 @@ wxStaticBoxSizer* ControllerConfigDiag::CreateGeneralWiimoteSettingsSizer()
 
 void ControllerConfigDiag::OnClose(wxCloseEvent& event)
 {
-  // Save all settings
   SConfig::GetInstance().SaveSettings();
-  SaveWiimoteSource();
 
   EndModal(wxID_OK);
 }
@@ -496,27 +494,4 @@ void ControllerConfigDiag::OnWiimoteConfigButton(wxCommandEvent& ev)
 void ControllerConfigDiag::OnWiimoteRefreshButton(wxCommandEvent&)
 {
   WiimoteReal::Refresh();
-}
-
-void ControllerConfigDiag::SaveWiimoteSource()
-{
-  std::string ini_filename = File::GetUserPath(D_CONFIG_IDX) + WIIMOTE_INI_NAME ".ini";
-
-  IniFile inifile;
-  inifile.Load(ini_filename);
-
-  for (unsigned int i = 0; i < MAX_WIIMOTES; ++i)
-  {
-    std::string secname("Wiimote");
-    secname += (char)('1' + i);
-    IniFile::Section& sec = *inifile.GetOrCreateSection(secname);
-
-    sec.Set("Source", (int)g_wiimote_sources[i]);
-  }
-
-  std::string secname("BalanceBoard");
-  IniFile::Section& sec = *inifile.GetOrCreateSection(secname);
-  sec.Set("Source", (int)g_wiimote_sources[WIIMOTE_BALANCE_BOARD]);
-
-  inifile.Save(ini_filename);
 }

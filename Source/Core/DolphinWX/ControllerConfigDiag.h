@@ -75,7 +75,6 @@ private:
   void OnWiimoteSourceChanged(wxCommandEvent& event);
   void OnWiimoteConfigButton(wxCommandEvent& event);
   void OnWiimoteRefreshButton(wxCommandEvent& event);
-  void SaveWiimoteSource();
 
   std::map<wxWindowID, unsigned int> m_gc_port_from_choice_id;
   std::map<wxWindowID, unsigned int> m_gc_port_from_config_id;

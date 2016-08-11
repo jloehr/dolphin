@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <array>
+
 #include "Common/Common.h"
 #include "Common/CommonTypes.h"
 
@@ -31,7 +33,7 @@ enum WiimoteSource : int
   WIIMOTE_SRC_HYBRID = 0x03,  // emu + real
 };
 
-extern WiimoteSource g_wiimote_sources[MAX_BBMOTES];
+extern std::array<WiimoteSource, MAX_BBMOTES>g_wiimote_sources;
 
 namespace Wiimote
 {

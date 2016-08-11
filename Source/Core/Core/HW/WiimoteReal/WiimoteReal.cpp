@@ -3,6 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
+#include <array>
 #include <cstdlib>
 #include <queue>
 
@@ -26,7 +27,7 @@
 
 #include "SFML/Network.hpp"
 
-WiimoteSource g_wiimote_sources[MAX_BBMOTES];
+std::array<WiimoteSource, MAX_BBMOTES> g_wiimote_sources;
 
 namespace WiimoteReal
 {
@@ -588,23 +589,7 @@ int Wiimote::GetIndex() const
 
 void LoadSettings()
 {
-  std::string ini_filename = File::GetUserPath(D_CONFIG_IDX) + WIIMOTE_INI_NAME ".ini";
-
-  IniFile inifile;
-  inifile.Load(ini_filename);
-
-  for (unsigned int i = 0; i < MAX_WIIMOTES; ++i)
-  {
-    std::string secname("Wiimote");
-    secname += (char)('1' + i);
-    IniFile::Section& sec = *inifile.GetOrCreateSection(secname);
-
-    sec.Get("Source", (u32*)&g_wiimote_sources[i], i ? WIIMOTE_SRC_NONE : WIIMOTE_SRC_EMU);
-  }
-
-  std::string secname("BalanceBoard");
-  IniFile::Section& sec = *inifile.GetOrCreateSection(secname);
-  sec.Get("Source", (u32*)&g_wiimote_sources[WIIMOTE_BALANCE_BOARD], WIIMOTE_SRC_NONE);
+  std::copy(SConfig::GetInstance().m_WiimoteSource.begin(), SConfig::GetInstance().m_WiimoteSource.end(), g_wiimote_sources.begin());
 }
 
 // config dialog calls this when some settings change
