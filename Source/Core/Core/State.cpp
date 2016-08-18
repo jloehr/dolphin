@@ -24,7 +24,6 @@
 #include "Core/Core.h"
 #include "Core/CoreTiming.h"
 #include "Core/HW/HW.h"
-#include "Core/HW/Wiimote.h"
 #include "Core/Host.h"
 #include "Core/Movie.h"
 #include "Core/NetPlayClient.h"
@@ -159,10 +158,6 @@ static std::string DoState(PointerWrap& p)
   // things to RAM
   g_video_backend->DoState(p);
   p.DoMarker("video_backend");
-
-  if (SConfig::GetInstance().bWii)
-    Wiimote::DoState(p);
-  p.DoMarker("Wiimote");
 
   PowerPC::DoState(p);
   p.DoMarker("PowerPC");

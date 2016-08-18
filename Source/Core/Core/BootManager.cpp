@@ -33,7 +33,6 @@
 #include "Core/HW/EXI.h"
 #include "Core/HW/SI.h"
 #include "Core/HW/Sram.h"
-#include "Core/HW/WiimoteReal/WiimoteReal.h"
 #include "Core/Host.h"
 #include "Core/Movie.h"
 #include "Core/NetPlayProto.h"
@@ -56,7 +55,6 @@ public:
   bool bSetEmulationSpeed;
   bool bSetVolume;
   bool bSetFrameSkip;
-  std::array<bool, MAX_BBMOTES> bSetWiimoteSource;
   std::array<bool, MAX_SI_CHANNELS> bSetPads;
   std::array<bool, MAX_EXI_CHANNELS> bSetEXIDevice;
 
@@ -85,7 +83,6 @@ private:
   std::string strBackend;
   std::string sBackend;
   std::string m_strGPUDeterminismMode;
-  std::array<int, MAX_BBMOTES> iWiimoteSource;
   std::array<SIDevices, MAX_SI_CHANNELS> Pads;
   std::array<TEXIDevices, MAX_EXI_CHANNELS> m_EXIDevice;
 };
@@ -118,14 +115,12 @@ void ConfigCache::SaveConfig(const SConfig& config)
   sBackend = config.sBackend;
   m_strGPUDeterminismMode = config.m_strGPUDeterminismMode;
 
-  std::copy(std::begin(g_wiimote_sources), std::end(g_wiimote_sources), std::begin(iWiimoteSource));
   std::copy(std::begin(config.m_SIDevice), std::end(config.m_SIDevice), std::begin(Pads));
   std::copy(std::begin(config.m_EXIDevice), std::end(config.m_EXIDevice), std::begin(m_EXIDevice));
 
   bSetEmulationSpeed = false;
   bSetVolume = false;
   bSetFrameSkip = false;
-  bSetWiimoteSource.fill(false);
   bSetPads.fill(false);
   bSetEXIDevice.fill(false);
 }
@@ -162,18 +157,6 @@ void ConfigCache::RestoreConfig(SConfig* config)
   // game is running.
   if (bSetVolume)
     config->m_Volume = Volume;
-
-  if (config->bWii)
-  {
-    for (unsigned int i = 0; i < MAX_BBMOTES; ++i)
-    {
-      if (bSetWiimoteSource[i])
-      {
-        g_wiimote_sources[i] = iWiimoteSource[i];
-        WiimoteReal::ChangeWiimoteSource(i, iWiimoteSource[i]);
-      }
-    }
-  }
 
   for (unsigned int i = 0; i < MAX_SI_CHANNELS; ++i)
   {
@@ -299,27 +282,6 @@ bool BootCore(const std::string& _rFilename)
     {
       // Flush possible changes to SYSCONF to file
       SConfig::GetInstance().m_SYSCONF->Save();
-
-      int source;
-      for (unsigned int i = 0; i < MAX_WIIMOTES; ++i)
-      {
-        controls_section->Get(StringFromFormat("WiimoteSource%u", i), &source, -1);
-        if (source != -1 && g_wiimote_sources[i] != (unsigned)source &&
-            source >= WIIMOTE_SRC_NONE && source <= WIIMOTE_SRC_HYBRID)
-        {
-          config_cache.bSetWiimoteSource[i] = true;
-          g_wiimote_sources[i] = source;
-          WiimoteReal::ChangeWiimoteSource(i, source);
-        }
-      }
-      controls_section->Get("WiimoteSourceBB", &source, -1);
-      if (source != -1 && g_wiimote_sources[WIIMOTE_BALANCE_BOARD] != (unsigned)source &&
-          (source == WIIMOTE_SRC_NONE || source == WIIMOTE_SRC_REAL))
-      {
-        config_cache.bSetWiimoteSource[WIIMOTE_BALANCE_BOARD] = true;
-        g_wiimote_sources[WIIMOTE_BALANCE_BOARD] = source;
-        WiimoteReal::ChangeWiimoteSource(WIIMOTE_BALANCE_BOARD, source);
-      }
     }
   }
 

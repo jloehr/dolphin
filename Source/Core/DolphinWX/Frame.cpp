@@ -45,7 +45,6 @@
 #include "Core/HW/DVDInterface.h"
 #include "Core/HW/GCKeyboard.h"
 #include "Core/HW/GCPad.h"
-#include "Core/HW/Wiimote.h"
 #include "Core/HotkeyManager.h"
 #include "Core/Movie.h"
 #include "Core/State.h"
@@ -347,14 +346,10 @@ bool CFrame::InitControllers()
     Window win = X11Utils::XWindowFromHandle(GetHandle());
     Pad::Initialize(reinterpret_cast<void*>(win));
     Keyboard::Initialize(reinterpret_cast<void*>(win));
-    Wiimote::Initialize(reinterpret_cast<void*>(win),
-                        Wiimote::InitializeMode::DO_NOT_WAIT_FOR_WIIMOTES);
     HotkeyManagerEmu::Initialize(reinterpret_cast<void*>(win));
 #else
     Pad::Initialize(reinterpret_cast<void*>(GetHandle()));
     Keyboard::Initialize(reinterpret_cast<void*>(GetHandle()));
-    Wiimote::Initialize(reinterpret_cast<void*>(GetHandle()),
-                        Wiimote::InitializeMode::DO_NOT_WAIT_FOR_WIIMOTES);
     HotkeyManagerEmu::Initialize(reinterpret_cast<void*>(GetHandle()));
 #endif
     return true;
@@ -475,7 +470,6 @@ CFrame::CFrame(wxFrame* parent, wxWindowID id, const wxString& title, const wxPo
     g_TASInputDlg[i] = new TASInputDlg(this);
 
   Movie::SetGCInputManip(GCTASManipFunction);
-  Movie::SetWiiInputManip(WiiTASManipFunction);
 
   State::SetOnAfterLoadCallback(OnAfterLoadCallback);
   Core::SetOnStoppedCallback(OnStoppedCallback);
@@ -555,7 +549,6 @@ CFrame::CFrame(wxFrame* parent, wxWindowID id, const wxString& title, const wxPo
 // Destructor
 CFrame::~CFrame()
 {
-  Wiimote::Shutdown();
   Keyboard::Shutdown();
   Pad::Shutdown();
   HotkeyManagerEmu::Shutdown();
@@ -1159,15 +1152,6 @@ void GCTASManipFunction(GCPadStatus* PadStatus, int controllerID)
 {
   if (main_frame)
     main_frame->g_TASInputDlg[controllerID]->GetValues(PadStatus);
-}
-
-void WiiTASManipFunction(u8* data, WiimoteEmu::ReportFeatures rptf, int controllerID, int ext,
-                         const wiimote_key key)
-{
-  if (main_frame)
-  {
-    main_frame->g_TASInputDlg[controllerID + 4]->GetValues(data, rptf, ext, key);
-  }
 }
 
 void CFrame::OnKeyDown(wxKeyEvent& event)

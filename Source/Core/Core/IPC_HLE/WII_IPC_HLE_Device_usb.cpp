@@ -9,7 +9,6 @@
 #include "Core/CoreTiming.h"
 #include "Core/Debugger/Debugger_SymbolMap.h"
 #include "Core/HW/SystemTimers.h"
-#include "Core/HW/Wiimote.h"
 #include "Core/Host.h"
 #include "Core/IPC_HLE/WII_IPC_HLE.h"
 #include "Core/IPC_HLE/WII_IPC_HLE_Device_usb.h"
@@ -497,8 +496,6 @@ u32 CWII_IPC_HLE_Device_usb_oh1_57e_305::Update()
   if (now - m_last_ticks > interval)
   {
     g_controller_interface.UpdateInput();
-    for (unsigned int i = 0; i < m_WiiMotes.size(); i++)
-      Wiimote::Update(i, m_WiiMotes[i].IsConnected());
     m_last_ticks = now;
   }
 

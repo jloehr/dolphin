@@ -9,10 +9,12 @@
 #include <queue>
 #include <vector>
 
-#include "Core/HW/Wiimote.h"
 #include "Core/IPC_HLE/WII_IPC_HLE.h"
 #include "Core/IPC_HLE/WII_IPC_HLE_Device.h"
 #include "Core/IPC_HLE/hci.h"
+
+#define MAX_BBMOTES 5
+#define WIIMOTE_BALANCE_BOARD 4
 
 class CWII_IPC_HLE_WiiMote;
 

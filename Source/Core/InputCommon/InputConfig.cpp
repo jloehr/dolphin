@@ -7,10 +7,11 @@
 #include "Common/FileUtil.h"
 #include "Common/IniFile.h"
 #include "Core/ConfigManager.h"
-#include "Core/HW/Wiimote.h"
 #include "InputCommon/ControllerEmu.h"
 #include "InputCommon/ControllerInterface/ControllerInterface.h"
 #include "InputCommon/InputConfig.h"
+
+#define MAX_BBMOTES 5
 
 bool InputConfig::LoadConfig(bool isGC)
 {

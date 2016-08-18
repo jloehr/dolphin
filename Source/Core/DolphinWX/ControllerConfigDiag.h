@@ -10,12 +10,15 @@
 
 #include "Common/SysConf.h"
 #include "Core/ConfigManager.h"
-#include "Core/HW/Wiimote.h"
 #include "InputCommon/GCAdapter.h"
 
 class InputConfig;
 class wxButton;
 class wxStaticBoxSizer;
+
+#define MAX_WIIMOTES 4
+#define WIIMOTE_BALANCE_BOARD 4
+#define MAX_BBMOTES 5
 
 class ControllerConfigDiag : public wxDialog
 {
@@ -59,7 +62,6 @@ private:
   void OnContinuousScanning(wxCommandEvent& event)
   {
     SConfig::GetInstance().m_WiimoteContinuousScanning = event.IsChecked();
-    WiimoteReal::Initialize(Wiimote::InitializeMode::DO_NOT_WAIT_FOR_WIIMOTES);
     event.Skip();
   }
 

@@ -31,7 +31,6 @@
 #include "Core/Analytics.h"
 #include "Core/ConfigManager.h"
 #include "Core/Core.h"
-#include "Core/HW/Wiimote.h"
 #include "Core/Host.h"
 #include "Core/Movie.h"
 
@@ -353,7 +352,6 @@ int DolphinApp::OnExit()
 
 void DolphinApp::OnFatalException()
 {
-  WiimoteReal::Shutdown();
 }
 
 void DolphinApp::OnIdle(wxIdleEvent& ev)

@@ -23,8 +23,6 @@
 #include "Core/HW/GCKeyboard.h"
 #include "Core/HW/GCPad.h"
 #include "Core/HW/SI.h"
-#include "Core/HW/Wiimote.h"
-#include "Core/HW/WiimoteReal/WiimoteReal.h"
 #include "Core/HotkeyManager.h"
 #include "Core/Movie.h"
 #include "Core/NetPlayProto.h"
@@ -173,12 +171,6 @@ wxStaticBoxSizer* ControllerConfigDiag::CreateWiimoteConfigSizer()
         SConfig::GetInstance().bWii || Core::GetState() == Core::CORE_UNINITIALIZED;
     if (Core::g_want_determinism || !wii_game_started)
       wiimote_source_ch[i]->Disable();
-
-    m_orig_wiimote_sources[i] = g_wiimote_sources[i];
-    wiimote_source_ch[i]->Select(m_orig_wiimote_sources[i]);
-    if (!wii_game_started || (m_orig_wiimote_sources[i] != WIIMOTE_SRC_EMU &&
-                              m_orig_wiimote_sources[i] != WIIMOTE_SRC_HYBRID))
-      wiimote_configure_bt[i]->Disable();
   }
 
   // "Wiimotes" layout
@@ -229,9 +221,6 @@ wxStaticBoxSizer* ControllerConfigDiag::CreateBalanceBoardSizer()
                                            src_choices.size(), src_choices.data());
   bb_source->Bind(wxEVT_CHOICE, &ControllerConfigDiag::SelectSource, this);
 
-  m_orig_wiimote_sources[WIIMOTE_BALANCE_BOARD] = g_wiimote_sources[WIIMOTE_BALANCE_BOARD];
-  bb_source->Select(m_orig_wiimote_sources[WIIMOTE_BALANCE_BOARD] ? 1 : 0);
-
   bb_sizer->Add(bb_source, 0, wxALIGN_CENTER_VERTICAL);
 
   bb_group->Add(bb_sizer, 1, wxEXPAND, 5);
@@ -252,12 +241,6 @@ wxStaticBoxSizer* ControllerConfigDiag::CreateRealWiimoteSizer()
   wxStaticBoxSizer* const real_wiimotes_group =
       new wxStaticBoxSizer(wxVERTICAL, this, _("Real Wiimotes"));
   wxBoxSizer* const real_wiimotes_sizer = new wxBoxSizer(wxHORIZONTAL);
-
-  if (!WiimoteReal::g_wiimote_scanner.IsReady())
-    real_wiimotes_group->Add(
-        new wxStaticText(this, wxID_ANY, _("A supported Bluetooth device could not be found.\n"
-                                           "You must manually connect your Wiimotes.")),
-        0, wxALIGN_CENTER | wxALL, 5);
 
   wxCheckBox* const continuous_scanning = new wxCheckBox(this, wxID_ANY, _("Continuous Scanning"));
   continuous_scanning->Bind(wxEVT_CHECKBOX, &ControllerConfigDiag::OnContinuousScanning, this);
@@ -359,21 +342,13 @@ wxStaticBoxSizer* ControllerConfigDiag::CreateGeneralWiimoteSettingsSizer()
 
 void ControllerConfigDiag::ConfigEmulatedWiimote(wxCommandEvent& ev)
 {
-  InputConfig* const wiimote_plugin = Wiimote::GetConfig();
-
   HotkeyManagerEmu::Enable(false);
-
-  InputConfigDialog m_ConfigFrame(this, *wiimote_plugin,
-                                  _("Dolphin Emulated Wiimote Configuration"),
-                                  m_wiimote_index_from_conf_bt_id[ev.GetId()]);
-  m_ConfigFrame.ShowModal();
 
   HotkeyManagerEmu::Enable(true);
 }
 
 void ControllerConfigDiag::RefreshRealWiimotes(wxCommandEvent&)
 {
-  WiimoteReal::Refresh();
 }
 
 void ControllerConfigDiag::SelectSource(wxCommandEvent& event)
@@ -384,47 +359,18 @@ void ControllerConfigDiag::SelectSource(wxCommandEvent& event)
 
   if (index != WIIMOTE_BALANCE_BOARD)
   {
-    WiimoteReal::ChangeWiimoteSource(index, event.GetInt());
-    if (g_wiimote_sources[index] != WIIMOTE_SRC_EMU &&
-        g_wiimote_sources[index] != WIIMOTE_SRC_HYBRID)
-      wiimote_configure_bt[index]->Disable();
-    else
-      wiimote_configure_bt[index]->Enable();
   }
   else
   {
-    WiimoteReal::ChangeWiimoteSource(index, event.GetInt() ? WIIMOTE_SRC_REAL : WIIMOTE_SRC_NONE);
   }
 }
 
 void ControllerConfigDiag::RevertSource()
 {
-  for (int i = 0; i < MAX_BBMOTES; ++i)
-    g_wiimote_sources[i] = m_orig_wiimote_sources[i];
 }
 
 void ControllerConfigDiag::Save(wxCommandEvent& event)
 {
-  std::string ini_filename = File::GetUserPath(D_CONFIG_IDX) + WIIMOTE_INI_NAME ".ini";
-
-  IniFile inifile;
-  inifile.Load(ini_filename);
-
-  for (unsigned int i = 0; i < MAX_WIIMOTES; ++i)
-  {
-    std::string secname("Wiimote");
-    secname += (char)('1' + i);
-    IniFile::Section& sec = *inifile.GetOrCreateSection(secname);
-
-    sec.Set("Source", (int)g_wiimote_sources[i]);
-  }
-
-  std::string secname("BalanceBoard");
-  IniFile::Section& sec = *inifile.GetOrCreateSection(secname);
-  sec.Set("Source", (int)g_wiimote_sources[WIIMOTE_BALANCE_BOARD]);
-
-  inifile.Save(ini_filename);
-
   event.Skip();
 }
 

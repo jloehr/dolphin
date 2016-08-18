@@ -8,7 +8,6 @@
 
 #include "Core/ConfigManager.h"
 #include "Core/Core.h"
-#include "Core/HW/Wiimote.h"
 #include "Core/Host.h"
 #include "Core/IPC_HLE/WII_IPC_HLE_Device_usb.h"
 #include "Core/IPC_HLE/WII_IPC_HLE_WiiMote.h"
@@ -193,9 +192,6 @@ void CWII_IPC_HLE_WiiMote::EventConnectionAccepted()
 
 void CWII_IPC_HLE_WiiMote::EventDisconnect()
 {
-  // Send disconnect message to plugin
-  Wiimote::ControlChannel(m_ConnectionHandle & 0xFF, 99, nullptr, 0);
-
   m_ConnectionState = CONN_INACTIVE;
   // Clear channel flags
   ResetChannels();
@@ -273,23 +269,10 @@ void CWII_IPC_HLE_WiiMote::ExecuteL2capCmd(u8* _pData, u32 _Size)
         break;
 
       case L2CAP_PSM_HID_CNTL:
-        if (number < MAX_BBMOTES)
-          Wiimote::ControlChannel(number, pHeader->dcid, pData, DataSize);
         break;
 
       case L2CAP_PSM_HID_INTR:
-      {
-        if (number < MAX_BBMOTES)
-        {
-          DEBUG_LOG(WIIMOTE, "Wiimote_InterruptChannel");
-          DEBUG_LOG(WIIMOTE, "    Channel ID: %04x", pHeader->dcid);
-          std::string Temp = ArrayToString((const u8*)pData, DataSize);
-          DEBUG_LOG(WIIMOTE, "    Data: %s", Temp.c_str());
-
-          Wiimote::InterruptChannel(number, pHeader->dcid, pData, DataSize);
-        }
-      }
-      break;
+        break;
 
       default:
         ERROR_LOG(WII_IPC_WIIMOTE, "Channel 0x04%x has unknown PSM %x", pHeader->dcid,

@@ -11,7 +11,6 @@
 #include "Common/Logging/LogManager.h"
 
 #include "Core/ConfigManager.h"
-#include "Core/HW/Wiimote.h"
 
 #include "InputCommon/GCAdapter.h"
 
@@ -26,7 +25,6 @@ void Init()
   LogManager::Init();
   SConfig::Init();
   VideoBackendBase::PopulateList();
-  WiimoteReal::LoadSettings();
   GCAdapter::Init();
   VideoBackendBase::ActivateBackend(SConfig::GetInstance().m_strVideoBackend);
 
@@ -36,7 +34,6 @@ void Init()
 void Shutdown()
 {
   GCAdapter::Shutdown();
-  WiimoteReal::Shutdown();
   VideoBackendBase::ClearList();
   SConfig::Shutdown();
   LogManager::Shutdown();

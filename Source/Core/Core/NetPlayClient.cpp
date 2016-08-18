@@ -20,8 +20,6 @@
 #include "Core/HW/SI.h"
 #include "Core/HW/SI_DeviceGCController.h"
 #include "Core/HW/Sram.h"
-#include "Core/HW/WiimoteEmu/WiimoteEmu.h"
-#include "Core/HW/WiimoteReal/WiimoteReal.h"
 #include "Core/IPC_HLE/WII_IPC_HLE_Device_usb.h"
 #include "Core/Movie.h"
 #include "InputCommon/GCAdapter.h"
@@ -823,13 +821,6 @@ bool NetPlayClient::StartGame(const std::string& path)
 
   m_dialog->BootGame(path);
 
-  if (SConfig::GetInstance().bWii)
-  {
-    for (unsigned int i = 0; i < 4; ++i)
-      WiimoteReal::ChangeWiimoteSource(i,
-                                       m_wiimote_map[i] > 0 ? WIIMOTE_SRC_EMU : WIIMOTE_SRC_NONE);
-  }
-
   UpdateDevices();
 
   return true;
@@ -1264,16 +1255,6 @@ bool CSIDevice_GCController::NetPlay_GetInput(u8 numPAD, GCPadStatus* PadStatus)
 
   if (netplay_client)
     return netplay_client->GetNetPads(numPAD, PadStatus);
-  else
-    return false;
-}
-
-bool WiimoteEmu::Wiimote::NetPlay_GetWiimoteData(int wiimote, u8* data, u8 size)
-{
-  std::lock_guard<std::mutex> lk(crit_netplay_client);
-
-  if (netplay_client)
-    return netplay_client->WiimoteUpdate(wiimote, data, size);
   else
     return false;
 }

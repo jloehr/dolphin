@@ -41,7 +41,6 @@
 #include "Core/HW/ProcessorInterface.h"
 #include "Core/HW/SI_Device.h"
 #include "Core/HW/WiiSaveCrypted.h"
-#include "Core/HW/Wiimote.h"
 #include "Core/Host.h"
 #include "Core/HotkeyManager.h"
 #include "Core/IPC_HLE/WII_IPC_HLE_Device_usb.h"
@@ -713,14 +712,6 @@ void CFrame::OnTASInput(wxCommandEvent& event)
       g_TASInputDlg[i]->Show();
       g_TASInputDlg[i]->SetTitle(wxString::Format(_("TAS Input - Controller %d"), i + 1));
     }
-
-    if (g_wiimote_sources[i] == WIIMOTE_SRC_EMU &&
-        !(Core::IsRunning() && !SConfig::GetInstance().bWii))
-    {
-      g_TASInputDlg[i + 4]->CreateWiiLayout(i);
-      g_TASInputDlg[i + 4]->Show();
-      g_TASInputDlg[i + 4]->SetTitle(wxString::Format(_("TAS Input - Wiimote %d"), i + 1));
-    }
   }
 }
 
@@ -801,9 +792,6 @@ void CFrame::OnRecord(wxCommandEvent& WXUNUSED(event))
   {
     if (SIDevice_IsGCController(SConfig::GetInstance().m_SIDevice[i]))
       controllers |= (1 << i);
-
-    if (g_wiimote_sources[i] != WIIMOTE_SRC_NONE)
-      controllers |= (1 << (i + 4));
   }
 
   if (Movie::BeginRecordingInput(controllers))
@@ -1352,7 +1340,6 @@ void CFrame::OnConfigHotkey(wxCommandEvent& WXUNUSED(event))
   m_ConfigFrame.ShowModal();
 
   // Update references in case controllers were refreshed
-  Wiimote::LoadConfig();
   Keyboard::LoadConfig();
   Pad::LoadConfig();
   HotkeyManagerEmu::LoadConfig();

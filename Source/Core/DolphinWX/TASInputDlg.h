@@ -10,7 +10,6 @@
 #include <wx/sizer.h>
 
 #include "Common/CommonTypes.h"
-#include "Core/HW/WiimoteEmu/WiimoteEmu.h"
 #include "InputCommon/GCPadStatus.h"
 
 class wxCheckBox;
@@ -33,11 +32,9 @@ public:
   void OnRightClickSlider(wxMouseEvent& event);
   void ResetValues();
   void GetValues(GCPadStatus* PadStatus);
-  void GetValues(u8* data, WiimoteEmu::ReportFeatures rptf, int ext, const wiimote_key key);
   void SetTurbo(wxMouseEvent& event);
   void ButtonTurbo();
   void GetKeyBoardInput(GCPadStatus* PadStatus);
-  void GetKeyBoardInput(u8* data, WiimoteEmu::ReportFeatures rptf, int ext, const wiimote_key key);
   void CreateGCLayout();
   void CreateWiiLayout(int num);
   wxBitmap CreateStickBitmap(int x, int y);
@@ -128,8 +125,6 @@ private:
   Control* m_controls[10];
   Control* m_cc_controls[6];
   static const int m_gc_pad_buttons_bitmask[12];
-  static const int m_wii_buttons_bitmask[11];
-  static const int m_cc_buttons_bitmask[15];
   static const std::string m_cc_button_names[15];
   u8 m_ext = 0;
   wxBoxSizer* m_main_szr;

@@ -50,7 +50,6 @@
 #include "Core/HW/ProcessorInterface.h"
 #include "Core/HW/SystemTimers.h"
 #include "Core/HW/VideoInterface.h"
-#include "Core/HW/Wiimote.h"
 #include "Core/IPC_HLE/WII_IPC_HLE_Device_usb.h"
 #include "Core/IPC_HLE/WII_IPC_HLE_WiiMote.h"
 #include "Core/IPC_HLE/WII_Socket.h"
@@ -526,22 +525,6 @@ void EmuThread()
     Keyboard::LoadConfig();
   }
 
-  // Load and Init Wiimotes - only if we are booting in Wii mode
-  if (core_parameter.bWii)
-  {
-    if (init_controllers)
-      Wiimote::Initialize(s_window_handle, !s_state_filename.empty() ?
-                                               Wiimote::InitializeMode::DO_WAIT_FOR_WIIMOTES :
-                                               Wiimote::InitializeMode::DO_NOT_WAIT_FOR_WIIMOTES);
-    else
-      Wiimote::LoadConfig();
-
-    // Activate Wiimotes which don't have source set to "None"
-    for (unsigned int i = 0; i != MAX_BBMOTES; ++i)
-      if (g_wiimote_sources[i])
-        GetUsbPointer()->AccessWiiMote(i | 0x100)->Activate(true);
-  }
-
   AudioCommon::InitSoundStream();
 
   // The hardware is initialized.
@@ -653,7 +636,6 @@ void EmuThread()
 
   if (init_controllers)
   {
-    Wiimote::Shutdown();
     Keyboard::Shutdown();
     Pad::Shutdown();
     init_controllers = false;
@@ -695,14 +677,12 @@ void SetState(EState state)
     // NOTE: GetState() will return CORE_PAUSE immediately, even before anything has
     //   stopped (including the CPU).
     CPU::EnableStepping(true);  // Break
-    Wiimote::Pause();
 #if defined(__LIBUSB__) || defined(_WIN32)
     GCAdapter::ResetRumble();
 #endif
     break;
   case CORE_RUN:
     CPU::EnableStepping(false);
-    Wiimote::Resume();
     break;
   default:
     PanicAlert("Invalid state");

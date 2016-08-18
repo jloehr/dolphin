@@ -15,29 +15,16 @@
 #include "Common/Assert.h"
 #include "Common/CommonTypes.h"
 #include "Common/FileUtil.h"
+#include "Common/IniFile.h"
 #include "Common/Logging/Log.h"
 #include "Core/Core.h"
-#include "Core/HW/Wiimote.h"
-#include "Core/HW/WiimoteEmu/Attachment/Classic.h"
-#include "Core/HW/WiimoteEmu/Attachment/Nunchuk.h"
-#include "Core/HW/WiimoteEmu/WiimoteEmu.h"
-#include "Core/HW/WiimoteReal/WiimoteReal.h"
 #include "Core/Movie.h"
 #include "DolphinWX/TASInputDlg.h"
 #include "InputCommon/GCPadStatus.h"
-#include "InputCommon/InputConfig.h"
 
 wxDEFINE_EVENT(INVALIDATE_BUTTON_EVENT, wxCommandEvent);
 wxDEFINE_EVENT(INVALIDATE_CONTROL_EVENT, wxCommandEvent);
 wxDEFINE_EVENT(INVALIDATE_EXTENSION_EVENT, wxThreadEvent);
-
-struct TASWiimoteReport
-{
-  u8* data;
-  WiimoteEmu::ReportFeatures rptf;
-  int ext;
-  const wiimote_key key;
-};
 
 TASInputDlg::TASInputDlg(wxWindow* parent, wxWindowID id, const wxString& title,
                          const wxPoint& position, const wxSize& size, long style)
@@ -93,26 +80,6 @@ const int TASInputDlg::m_gc_pad_buttons_bitmask[12] = {
     PAD_BUTTON_A,    PAD_BUTTON_B,  PAD_BUTTON_X,    PAD_BUTTON_Y,
     PAD_TRIGGER_Z,   PAD_TRIGGER_L, PAD_TRIGGER_R,   PAD_BUTTON_START};
 
-const int TASInputDlg::m_wii_buttons_bitmask[11] = {
-    WiimoteEmu::Wiimote::PAD_DOWN,    WiimoteEmu::Wiimote::PAD_UP,
-    WiimoteEmu::Wiimote::PAD_LEFT,    WiimoteEmu::Wiimote::PAD_RIGHT,
-    WiimoteEmu::Wiimote::BUTTON_A,    WiimoteEmu::Wiimote::BUTTON_B,
-    WiimoteEmu::Wiimote::BUTTON_ONE,  WiimoteEmu::Wiimote::BUTTON_TWO,
-    WiimoteEmu::Wiimote::BUTTON_PLUS, WiimoteEmu::Wiimote::BUTTON_MINUS,
-    WiimoteEmu::Wiimote::BUTTON_HOME,
-};
-
-const int TASInputDlg::m_cc_buttons_bitmask[15] = {
-    WiimoteEmu::Classic::PAD_DOWN,    WiimoteEmu::Classic::PAD_UP,
-    WiimoteEmu::Classic::PAD_LEFT,    WiimoteEmu::Classic::PAD_RIGHT,
-    WiimoteEmu::Classic::BUTTON_A,    WiimoteEmu::Classic::BUTTON_B,
-    WiimoteEmu::Classic::BUTTON_X,    WiimoteEmu::Classic::BUTTON_Y,
-    WiimoteEmu::Classic::BUTTON_PLUS, WiimoteEmu::Classic::BUTTON_MINUS,
-    WiimoteEmu::Classic::TRIGGER_L,   WiimoteEmu::Classic::TRIGGER_R,
-    WiimoteEmu::Classic::BUTTON_ZR,   WiimoteEmu::Classic::BUTTON_ZL,
-    WiimoteEmu::Classic::BUTTON_HOME,
-};
-
 const std::string TASInputDlg::m_cc_button_names[] = {
     "Down", "Up", "Left", "Right", "A", "B", "X", "Y", "+", "-", "L", "R", "ZR", "ZL", "Home"};
 
@@ -161,12 +128,7 @@ void TASInputDlg::CreateWiiLayout(int num)
   m_ext_szr = new wxBoxSizer(wxHORIZONTAL);
   m_cc_szr = CreateCCLayout();
 
-  if (Core::IsRunning())
-  {
-    m_ext = static_cast<WiimoteEmu::Wiimote*>(Wiimote::GetConfig()->GetController(num))
-                ->CurrentExtension();
-  }
-  else
+  if (!Core::IsRunning())
   {
     IniFile ini;
     ini.Load(File::GetUserPath(D_CONFIG_IDX) + "WiimoteNew.ini");
@@ -246,11 +208,6 @@ wxBoxSizer* TASInputDlg::CreateCCLayout()
     m_cc_buttons[i] = CreateButton(m_cc_button_names[i]);
     m_cc_buttons[i].checkbox->SetClientData(&m_cc_buttons[i]);
   }
-
-  m_cc_l_stick = CreateStick(ID_CC_L_STICK, 63, 63, WiimoteEmu::Classic::LEFT_STICK_CENTER_X,
-                             WiimoteEmu::Classic::LEFT_STICK_CENTER_Y, false, true);
-  m_cc_r_stick = CreateStick(ID_CC_R_STICK, 31, 31, WiimoteEmu::Classic::RIGHT_STICK_CENTER_X,
-                             WiimoteEmu::Classic::RIGHT_STICK_CENTER_Y, false, true);
 
   m_cc_controls[CC_L_STICK_X] = &m_cc_l_stick.x_cont;
   m_cc_controls[CC_L_STICK_Y] = &m_cc_l_stick.y_cont;
@@ -601,11 +558,6 @@ void TASInputDlg::SetButtonValue(Button* button, bool CurrentState)
 // NOTE: Host / CPU Thread
 void TASInputDlg::SetWiiButtons(u16* butt)
 {
-  for (unsigned int i = 0; i < 11; ++i)
-  {
-    if (m_buttons[i] != nullptr)
-      *butt |= (m_buttons[i]->is_checked) ? m_wii_buttons_bitmask[i] : 0;
-  }
   ButtonTurbo();
 }
 
@@ -629,229 +581,6 @@ void TASInputDlg::GetKeyBoardInput(GCPadStatus* PadStatus)
                  ((PadStatus->triggerLeft) == 255) || ((PadStatus->button & PAD_TRIGGER_L) != 0));
   SetButtonValue(&m_r,
                  ((PadStatus->triggerRight) == 255) || ((PadStatus->button & PAD_TRIGGER_R) != 0));
-}
-
-// NOTE: Host / CPU Thread
-void TASInputDlg::GetKeyBoardInput(u8* data, WiimoteEmu::ReportFeatures rptf, int ext,
-                                   const wiimote_key key)
-{
-  u8* const coreData = rptf.core ? (data + rptf.core) : nullptr;
-  u8* const accelData = rptf.accel ? (data + rptf.accel) : nullptr;
-  // u8* const irData = rptf.ir ? (data + rptf.ir) : nullptr;
-  u8* const extData = rptf.ext ? (data + rptf.ext) : nullptr;
-
-  if (coreData)
-  {
-    for (unsigned int i = 0; i < 11; ++i)
-    {
-      if (m_buttons[i] != nullptr)
-        SetButtonValue(m_buttons[i],
-                       (((wm_buttons*)coreData)->hex & m_wii_buttons_bitmask[i]) != 0);
-    }
-  }
-  if (accelData)
-  {
-    wm_accel* dt = (wm_accel*)accelData;
-
-    SetSliderValue(&m_x_cont, dt->x << 2 | ((wm_buttons*)coreData)->acc_x_lsb);
-    SetSliderValue(&m_y_cont, dt->y << 2 | ((wm_buttons*)coreData)->acc_y_lsb << 1);
-    SetSliderValue(&m_z_cont, dt->z << 2 | ((wm_buttons*)coreData)->acc_z_lsb << 1);
-  }
-
-  // I don't think this can be made to work in a sane manner.
-  // if (irData)
-  //{
-  //	u16 x = 1023 - (irData[0] | ((irData[2] >> 4 & 0x3) << 8));
-  //	u16 y = irData[1] | ((irData[2] >> 6 & 0x3) << 8);
-
-  //	SetStickValue(&m_main_stick.x_cont.set_by_keyboard, &m_main_stick.x_cont.value,
-  // m_main_stick.x_cont.text, x, 561);
-  //	SetStickValue(&m_main_stick.y_cont.set_by_keyboard, &m_main_stick.y_cont.value,
-  // m_main_stick.y_cont.text, y, 486);
-  //}
-
-  if (extData && ext == 1)
-  {
-    wm_nc& nunchuk = *(wm_nc*)extData;
-    WiimoteDecrypt(&key, (u8*)&nunchuk, 0, sizeof(wm_nc));
-    nunchuk.bt.hex = nunchuk.bt.hex ^ 0x3;
-    SetButtonValue(m_buttons[11], nunchuk.bt.c != 0);
-    SetButtonValue(m_buttons[12], nunchuk.bt.z != 0);
-  }
-
-  if (extData && ext == 2)
-  {
-    wm_classic_extension& cc = *(wm_classic_extension*)extData;
-    WiimoteDecrypt(&key, (u8*)&cc, 0, sizeof(wm_classic_extension));
-    cc.bt.hex = cc.bt.hex ^ 0xFFFF;
-    for (unsigned int i = 0; i < 15; ++i)
-    {
-      SetButtonValue(&m_cc_buttons[i], ((cc.bt.hex & m_cc_buttons_bitmask[i]) != 0));
-    }
-
-    if (m_cc_l.value == 31)
-    {
-      m_cc_buttons[10].value = true;
-      InvalidateButton(&m_cc_buttons[10]);
-    }
-    if (m_cc_r.value == 31)
-    {
-      m_cc_buttons[11].value = true;
-      InvalidateButton(&m_cc_buttons[11]);
-    }
-
-    SetSliderValue(&m_cc_l_stick.x_cont, cc.regular_data.lx);
-    SetSliderValue(&m_cc_l_stick.y_cont, cc.regular_data.ly);
-
-    SetSliderValue(&m_cc_r_stick.x_cont, cc.rx1 | (cc.rx2 << 1) | (cc.rx3 << 3));
-    SetSliderValue(&m_cc_r_stick.y_cont, cc.ry);
-  }
-}
-
-// NOTE: Host / CPU Thread
-// Do not touch the GUI. Requires wxMutexGuiEnter which will deadlock against
-// the GUI when pausing/stopping.
-void TASInputDlg::GetValues(u8* data, WiimoteEmu::ReportFeatures rptf, int ext,
-                            const wiimote_key key)
-{
-  if (!IsShown() || !m_has_layout)
-    return;
-
-  GetKeyBoardInput(data, rptf, ext, key);
-
-  u8* const coreData = rptf.core ? (data + rptf.core) : nullptr;
-  u8* const accelData = rptf.accel ? (data + rptf.accel) : nullptr;
-  u8* const irData = rptf.ir ? (data + rptf.ir) : nullptr;
-  u8* const extData = rptf.ext ? (data + rptf.ext) : nullptr;
-  if (ext != 2)
-  {
-    if (coreData)
-      SetWiiButtons(&((wm_buttons*)coreData)->hex);
-
-    if (accelData)
-    {
-      wm_accel& dt = *(wm_accel*)accelData;
-      wm_buttons& but = *(wm_buttons*)coreData;
-      dt.x = m_x_cont.value >> 2;
-      dt.y = m_y_cont.value >> 2;
-      dt.z = m_z_cont.value >> 2;
-      but.acc_x_lsb = m_x_cont.value & 0x3;
-      but.acc_y_lsb = m_y_cont.value >> 1 & 0x1;
-      but.acc_z_lsb = m_z_cont.value >> 1 & 0x1;
-    }
-    if (irData)
-    {
-      u16 x[4];
-      u16 y;
-
-      x[0] = m_main_stick.x_cont.value;
-      y = m_main_stick.y_cont.value;
-      x[1] = x[0] + 100;
-      x[2] = x[0] - 10;
-      x[3] = x[1] + 10;
-
-      u8 mode;
-      // Mode 5 not supported in core anyway.
-      if (rptf.ext)
-        mode = (rptf.ext - rptf.ir) == 10 ? 1 : 3;
-      else
-        mode = (rptf.size - rptf.ir) == 10 ? 1 : 3;
-
-      if (mode == 1)
-      {
-        memset(irData, 0xFF, sizeof(wm_ir_basic) * 2);
-        wm_ir_basic* ir_data = (wm_ir_basic*)irData;
-        for (unsigned int i = 0; i < 2; ++i)
-        {
-          if (x[i * 2] < 1024 && y < 768)
-          {
-            ir_data[i].x1 = static_cast<u8>(x[i * 2]);
-            ir_data[i].x1hi = x[i * 2] >> 8;
-
-            ir_data[i].y1 = static_cast<u8>(y);
-            ir_data[i].y1hi = y >> 8;
-          }
-          if (x[i * 2 + 1] < 1024 && y < 768)
-          {
-            ir_data[i].x2 = static_cast<u8>(x[i * 2 + 1]);
-            ir_data[i].x2hi = x[i * 2 + 1] >> 8;
-
-            ir_data[i].y2 = static_cast<u8>(y);
-            ir_data[i].y2hi = y >> 8;
-          }
-        }
-      }
-      else
-      {
-        memset(data, 0xFF, sizeof(wm_ir_extended) * 4);
-        wm_ir_extended* const ir_data = (wm_ir_extended*)irData;
-        for (unsigned int i = 0; i < 4; ++i)
-        {
-          if (x[i] < 1024 && y < 768)
-          {
-            ir_data[i].x = static_cast<u8>(x[i]);
-            ir_data[i].xhi = x[i] >> 8;
-
-            ir_data[i].y = static_cast<u8>(y);
-            ir_data[i].yhi = y >> 8;
-
-            ir_data[i].size = 10;
-          }
-        }
-      }
-    }
-  }
-  if (ext != m_ext)
-  {
-    m_ext = ext;
-    InvalidateExtension();
-  }
-  else if (extData && ext == 1)
-  {
-    wm_nc& nunchuk = *(wm_nc*)extData;
-
-    nunchuk.jx = m_c_stick.x_cont.value;
-    nunchuk.jy = m_c_stick.y_cont.value;
-
-    nunchuk.ax = m_nx_cont.value >> 2;
-    nunchuk.bt.acc_x_lsb = m_nx_cont.value & 0x3;
-    nunchuk.ay = m_ny_cont.value >> 2;
-    nunchuk.bt.acc_y_lsb = m_ny_cont.value & 0x3;
-    nunchuk.az = m_nz_cont.value >> 2;
-    nunchuk.bt.acc_z_lsb = m_nz_cont.value & 0x3;
-
-    nunchuk.bt.hex |= (m_buttons[11]->is_checked) ? WiimoteEmu::Nunchuk::BUTTON_C : 0;
-    nunchuk.bt.hex |= (m_buttons[12]->is_checked) ? WiimoteEmu::Nunchuk::BUTTON_Z : 0;
-    nunchuk.bt.hex = nunchuk.bt.hex ^ 0x3;
-    WiimoteEncrypt(&key, (u8*)&nunchuk, 0, sizeof(wm_nc));
-  }
-  else if (extData && ext == 2)
-  {
-    wm_classic_extension& cc = *(wm_classic_extension*)extData;
-    WiimoteDecrypt(&key, (u8*)&cc, 0, sizeof(wm_classic_extension));
-    cc.bt.hex = 0;
-
-    for (unsigned int i = 0; i < ArraySize(m_cc_buttons); ++i)
-    {
-      cc.bt.hex |= (m_cc_buttons[i].is_checked) ? m_cc_buttons_bitmask[i] : 0;
-    }
-    cc.bt.hex ^= 0xFFFF;
-
-    u16 rx = m_cc_r_stick.x_cont.value;
-    cc.rx1 = rx & 0x1;
-    cc.rx2 = (rx >> 1) & 0x3;
-    cc.rx3 = (rx >> 3) & 0x3;
-    cc.ry = m_cc_r_stick.y_cont.value;
-
-    cc.regular_data.lx = m_cc_l_stick.x_cont.value;
-    cc.regular_data.ly = m_cc_l_stick.y_cont.value;
-
-    cc.rt = m_cc_r.value;
-    cc.lt1 = m_cc_l.value & 0x7;
-    cc.lt2 = (m_cc_l.value >> 3) & 0x3;
-
-    WiimoteEncrypt(&key, (u8*)&cc, 0, sizeof(wm_classic_extension));
-  }
 }
 
 // NOTE: Host / CPU Thread

@@ -38,7 +38,6 @@
 #include "Core/Core.h"
 #include "Core/HW/GCKeyboard.h"
 #include "Core/HW/GCPad.h"
-#include "Core/HW/Wiimote.h"
 #include "Core/HotkeyManager.h"
 #include "DolphinWX/InputConfigDiag.h"
 #include "DolphinWX/WxUtils.h"
@@ -754,7 +753,6 @@ void GamepadPage::RefreshDevices(wxCommandEvent&)
   // update device cbox
   m_config_dialog->UpdateDeviceComboBox();
 
-  Wiimote::LoadConfig();
   Keyboard::LoadConfig();
   Pad::LoadConfig();
   HotkeyManagerEmu::LoadConfig();
