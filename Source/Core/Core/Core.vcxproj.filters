@@ -67,18 +67,6 @@
     <Filter Include="HW %28Flipper/Hollywood%29\DSP Interface + HLE\LLE">
       <UniqueIdentifier>{9fcd7c03-c4be-477b-9c15-5f096ab9d0f6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="HW %28Flipper/Hollywood%29\Wiimote">
-      <UniqueIdentifier>{69d8dcb1-f22b-47af-b1e4-f700b1a42e77}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="HW %28Flipper/Hollywood%29\Wiimote\Emu">
-      <UniqueIdentifier>{079f3720-45c8-4c54-8589-b7d00a8bc1ac}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="HW %28Flipper/Hollywood%29\Wiimote\Real">
-      <UniqueIdentifier>{bc3e845a-3d01-4713-aa32-f27110838d0c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment">
-      <UniqueIdentifier>{cdbd65da-541f-47d2-8fdc-e99e73e98e69}</UniqueIdentifier>
-    </Filter>
     <Filter Include="HW %28Flipper/Hollywood%29\EXI - Expansion Interface">
       <UniqueIdentifier>{d19f1218-0e28-4f24-a4b3-33fac750a899}</UniqueIdentifier>
     </Filter>
@@ -456,42 +444,6 @@
     <ClCompile Include="HW\VideoInterface.cpp">
       <Filter>HW %28Flipper/Hollywood%29\VI - Video Interface</Filter>
     </ClCompile>
-    <ClCompile Include="HW\WiimoteEmu\Attachment\Attachment.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteEmu\Attachment\Classic.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteEmu\Attachment\Drums.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteEmu\Attachment\Guitar.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteEmu\Attachment\Nunchuk.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteEmu\Attachment\Turntable.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteEmu\EmuSubroutines.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteEmu\Encryption.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteEmu\Speaker.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteEmu\WiimoteEmu.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteReal\IOWin.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Real</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\WiimoteReal\WiimoteReal.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Real</Filter>
-    </ClCompile>
     <ClCompile Include="HW\WII_IPC.cpp">
       <Filter>HW %28Flipper/Hollywood%29\Wii IPC</Filter>
     </ClCompile>
@@ -596,9 +548,6 @@
     </ClCompile>
     <ClCompile Include="IPC_HLE\WiiMote_HID_Attr.cpp">
       <Filter>IPC HLE %28IOS/Starlet%29\USB/BT/Wiimote</Filter>
-    </ClCompile>
-    <ClCompile Include="HW\Wiimote.cpp">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote</Filter>
     </ClCompile>
     <ClCompile Include="PowerPC\CachedInterpreter.cpp">
       <Filter>PowerPC</Filter>
@@ -995,42 +944,6 @@
     <ClInclude Include="HW\VideoInterface.h">
       <Filter>HW %28Flipper/Hollywood%29\VI - Video Interface</Filter>
     </ClInclude>
-    <ClInclude Include="HW\WiimoteEmu\Attachment\Attachment.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteEmu\Attachment\Classic.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteEmu\Attachment\Drums.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteEmu\Attachment\Guitar.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteEmu\Attachment\Nunchuk.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteEmu\Attachment\Turntable.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteEmu\Encryption.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteEmu\MatrixMath.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteEmu\WiimoteEmu.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteEmu\WiimoteHid.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteReal\WiimoteReal.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Real</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\WiimoteReal\WiimoteRealBase.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote\Real</Filter>
-    </ClInclude>
     <ClInclude Include="HW\WII_IPC.h">
       <Filter>HW %28Flipper/Hollywood%29\Wii IPC</Filter>
     </ClInclude>
@@ -1156,9 +1069,6 @@
     </ClInclude>
     <ClInclude Include="IPC_HLE\WiiMote_HID_Attr.h">
       <Filter>IPC HLE %28IOS/Starlet%29\USB/BT/Wiimote</Filter>
-    </ClInclude>
-    <ClInclude Include="HW\Wiimote.h">
-      <Filter>HW %28Flipper/Hollywood%29\Wiimote</Filter>
     </ClInclude>
     <ClInclude Include="PowerPC\CPUCoreBase.h">
       <Filter>PowerPC</Filter>

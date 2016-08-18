@@ -121,18 +121,6 @@ set(SRCS	ActionReplay.cpp
 			HW/SystemTimers.cpp
 			HW/VideoInterface.cpp
 			HW/WII_IPC.cpp
-			HW/Wiimote.cpp
-			HW/WiimoteEmu/WiimoteEmu.cpp
-			HW/WiimoteEmu/Attachment/Classic.cpp
-			HW/WiimoteEmu/Attachment/Attachment.cpp
-			HW/WiimoteEmu/Attachment/Nunchuk.cpp
-			HW/WiimoteEmu/Attachment/Drums.cpp
-			HW/WiimoteEmu/Attachment/Guitar.cpp
-			HW/WiimoteEmu/Attachment/Turntable.cpp
-			HW/WiimoteEmu/EmuSubroutines.cpp
-			HW/WiimoteEmu/Encryption.cpp
-			HW/WiimoteEmu/Speaker.cpp
-			HW/WiimoteReal/WiimoteReal.cpp
 			HW/WiiSaveCrypted.cpp
 			IPC_HLE/ICMPLin.cpp
 			IPC_HLE/WII_IPC_HLE.cpp
@@ -246,19 +234,13 @@ endif(LIBUSB_FOUND)
 set(LIBS ${LIBS} ${MBEDTLS_LIBRARIES})
 
 if(WIN32)
-	set(SRCS ${SRCS} HW/BBA-TAP/TAP_Win32.cpp HW/WiimoteReal/IOWin.cpp)
+	set(SRCS ${SRCS} HW/BBA-TAP/TAP_Win32.cpp)
 elseif(APPLE)
-	set(SRCS ${SRCS} HW/BBA-TAP/TAP_Apple.cpp HW/WiimoteReal/IOdarwin.mm)
+	set(SRCS ${SRCS} HW/BBA-TAP/TAP_Apple.cpp)
 	set(LIBS ${LIBS}
 		${IOB_LIBRARY})
 elseif(UNIX)
 	set(SRCS ${SRCS} HW/BBA-TAP/TAP_Unix.cpp)
-	if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND BLUEZ_FOUND)
-		set(SRCS ${SRCS} HW/WiimoteReal/IOLinux.cpp)
-		set(LIBS ${LIBS} bluetooth)
-	elseif(ANDROID)
-		set(SRCS ${SRCS} HW/WiimoteReal/IOAndroid.cpp)
-	endif()
 endif()
 
 if(PORTAUDIO_FOUND)
