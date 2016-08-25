@@ -222,6 +222,7 @@ set(LIBS
 	videonull
 	videoogl
 	videosoftware
+	wiimoteinput
 	z
 	)
 
