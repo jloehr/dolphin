@@ -16,7 +16,7 @@ namespace WiimoteInput
   {
   public:
     // Called from ---READ & CPU--- thread
-    virtual void OnDeviceRead(ReportBuffer Data) = 0;
+    virtual void OnDeviceRead(std::unique_ptr<ReportBuffer> Data) = 0;
     // Called from ---READ--- thread
     virtual void OnDeviceDisconnect() = 0;
   };
@@ -26,7 +26,7 @@ namespace WiimoteInput
   {
   public:
     virtual void SetParent(std::shared_ptr<IParentDevice> NewParent) = 0;
-    virtual void Write(ReportBuffer Data) = 0;
+    virtual void Write(std::unique_ptr<ReportBuffer> Data) = 0;
 
     // Used for HybridDevice to check if it has a RealDevice
     virtual bool HasInputDevice() { return true; };
@@ -47,7 +47,7 @@ namespace WiimoteInput
 
     // Parent Device Interface
     // Called from ---READ & CPU--- thread
-    virtual void OnDeviceRead(ReportBuffer Data) override;
+    virtual void OnDeviceRead(std::unique_ptr<ReportBuffer> Data) override;
     // Called from ---READ--- thread
     virtual void OnDeviceDisconnect() override;
 

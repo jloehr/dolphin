@@ -6,12 +6,12 @@
 
 namespace WiimoteInput
 {
-  void SourceMapper::InterruptChannel(WiimoteID Wiimote, u16 Channel, ReportBuffer Data)
+  void SourceMapper::InterruptChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data)
   {
     // Forward to InputSource
   }
 
-  void SourceMapper::ControlChannel(WiimoteID Wiimote, u16 Channel, ReportBuffer Data)
+  void SourceMapper::ControlChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data)
   {
     // Forward to InputSource
   }
@@ -22,10 +22,10 @@ namespace WiimoteInput
     return false;
   }
 
-  ReportBuffer SourceMapper::PollDataAndUpdate(WiimoteID Wiimote)
+  std::unique_ptr<ReportBuffer> SourceMapper::PollDataAndUpdate(WiimoteID Wiimote)
   {
     // Update InputSource, then PollData
-    return ReportBuffer();
+    return std::make_unique<ReportBuffer>();
   }
 
   bool SourceMapper::CheckForConnectionAndUpdate(WiimoteID Wiimote)

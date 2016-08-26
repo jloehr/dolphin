@@ -17,11 +17,11 @@ namespace WiimoteInput
   class IIO
   {
   public:
-    virtual void InterruptChannel(WiimoteID Wiimote, u16 Channel, ReportBuffer Data) = 0;
-    virtual void ControlChannel(WiimoteID Wiimote, u16 Channel, ReportBuffer Data) = 0;
+    virtual void InterruptChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) = 0;
+    virtual void ControlChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) = 0;
     // Checks if the actual physical mapped device is currently connected
     virtual bool IsConnected(WiimoteID Wiimote) = 0;
-    virtual ReportBuffer PollDataAndUpdate(WiimoteID Wiimote) = 0;
+    virtual std::unique_ptr<ReportBuffer> PollDataAndUpdate(WiimoteID Wiimote) = 0;
     virtual bool CheckForConnectionAndUpdate(WiimoteID Wiimote) = 0;
     // Called when the Emulator disconnects the virutal Wiimote, used to enable OneButton-reconnect
     virtual void SetDisconnected(WiimoteID Wiimote) = 0;

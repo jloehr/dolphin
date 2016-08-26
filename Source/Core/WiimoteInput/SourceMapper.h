@@ -28,10 +28,10 @@ namespace WiimoteInput
     inline IScanner & GetScannerInterface() { return Scanner; };
 
     // IO Interface
-    virtual void InterruptChannel(WiimoteID Wiimote, u16 Channel, ReportBuffer Data) override;
-    virtual void ControlChannel(WiimoteID Wiimote, u16 Channel, ReportBuffer Data) override;
+    virtual void InterruptChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) override;
+    virtual void ControlChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) override;
     virtual bool IsConnected(WiimoteID Wiimote) override;
-    virtual ReportBuffer PollDataAndUpdate(WiimoteID Wiimote) override;
+    virtual std::unique_ptr<ReportBuffer> PollDataAndUpdate(WiimoteID Wiimote) override;
     virtual bool CheckForConnectionAndUpdate(WiimoteID Wiimote) override;
     virtual void SetDisconnected(WiimoteID Wiimote) override;
 

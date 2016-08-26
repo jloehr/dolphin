@@ -7,7 +7,7 @@
 namespace WiimoteInput
 {
   // Called from ---READ & CPU--- thread
-  void InputSource::OnDeviceRead(ReportBuffer Data)
+  void InputSource::OnDeviceRead(std::unique_ptr<ReportBuffer> Data)
   {
     // Append Data to ReadQueue
   }
