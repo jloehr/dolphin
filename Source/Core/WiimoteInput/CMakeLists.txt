@@ -1,3 +1,8 @@
+set(SRCS
+  WiimoteInput.cpp
+  SourceMapper.cpp
+  )
+
 set(LIBS 
 	common
 	inputcommon

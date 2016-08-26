@@ -1,9 +1,9 @@
 // Copyright 2016 Dolphin Emulator Project
 // Licensed under GPLv2+
 // Refer to the license.txt file included.
+#pragma once
 
 // Public Header for all other Modules/Systems that need to interact with the Wiimotes
-#pragma once
 
 #include <array>
 
@@ -27,7 +27,7 @@ namespace WiimoteInput
     virtual void SetDisconnected(WiimoteID Wiimote) = 0;
   };
 
-  // inline IIO& GetIO();
+  inline IIO& GetIO();
 
   // Interface for the Core to propagate changes in the Emulator State
   class IEmulatorStateEvents
@@ -61,7 +61,7 @@ namespace WiimoteInput
     virtual void ScanOnce() = 0;
   };
 
-  // inline IScanner& GetScanner();
+  inline IScanner& GetScanner();
 
   // Interface for the UI to access the Emulated Wiimote Input Settings
   class IEmulated

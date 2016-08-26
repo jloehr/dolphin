@@ -5,6 +5,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WiimoteInput.h" />
+    <ClInclude Include="SourceMapper.h" />
     <ClInclude Include="TypesAndConstants.h" />
+    <ClInclude Include="RealWiimotes\Scanner.h">
+      <Filter>RealWiimotes</Filter>
     </ClInclude>
+    <ClInclude Include="InputSource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WiimoteInput.cpp" />
+    <ClCompile Include="SourceMapper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="RealWiimotes">
+      <UniqueIdentifier>{734731f3-8c3e-4702-b35b-522098194278}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmulatedWiimotes">
+      <UniqueIdentifier>{0a8f9ed4-c012-40f9-be4a-ea67155c74c1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
 </Project>
