@@ -3,4 +3,8 @@
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WiimoteInput.h" />
+    <ClInclude Include="TypesAndConstants.h" />
+    </ClInclude>
 </Project>
