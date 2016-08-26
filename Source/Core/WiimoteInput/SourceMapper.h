@@ -25,7 +25,7 @@ namespace WiimoteInput
   {
   public:
 
-    inline IScanner & GetScannerInterface() { return Scanner; };
+    inline IScanner & GetScannerInterface() { return m_Scanner; };
 
     // IO Interface
     virtual void InterruptChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) override;
@@ -45,12 +45,10 @@ namespace WiimoteInput
     // CB OnNewBBFound
 
   private:
-    Scanner Scanner;
+    Scanner m_Scanner;
     // Emulated Wiimote System
 
-    SourceMapping InputMapping;
-    std::array<std::shared_ptr<InputSource>, MAX_WIIMOTE_DEVICES> InputSources;
-
-    // Unmapped RealWiimotes + BBoard
+    SourceMapping m_InputMapping;
+    std::array<std::shared_ptr<InputSource>, NUM_WIIMOTE_DEVICES> m_InputSources;
   };
 }

@@ -41,7 +41,7 @@ namespace WiimoteInput
 
   const SourceMapping& SourceMapper::GetMapping() const
   {
-    return InputMapping;
+    return m_InputMapping;
   }
 
   void SourceMapper::SetMapping(SourceMapping NewMapping)
