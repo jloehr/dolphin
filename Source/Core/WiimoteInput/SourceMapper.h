@@ -24,7 +24,7 @@ namespace WiimoteInput
     virtual void SetDisconnected(WiimoteID Wiimote) override;
 
     // Source Mapping Interface
-    virtual const SourceMapping & GetMapping() override;
+    virtual const SourceMapping& GetMapping() override;
     virtual void SetMapping(SourceMapping NewMapping) override;
     virtual void SetMapping(WiimoteID WiimoteSlot, SourceType NewSource) override;
 

@@ -45,7 +45,7 @@ namespace WiimoteInput
   class ISourceMapping
   {
   public:
-    virtual const SourceMapping & GetMapping() = 0;
+    virtual const SourceMapping& GetMapping() = 0;
     virtual void SetMapping(SourceMapping NewMapping) = 0;
     virtual void SetMapping(WiimoteID WiimoteSlot, SourceType NewSource) = 0;
   };

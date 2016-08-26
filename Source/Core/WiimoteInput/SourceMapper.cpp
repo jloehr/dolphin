@@ -39,7 +39,7 @@ namespace WiimoteInput
     // Forward to InputSource
   }
 
-  const SourceMapping & SourceMapper::GetMapping()
+  const SourceMapping& SourceMapper::GetMapping()
   {
     return InputMapping;
   }
