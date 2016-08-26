@@ -16,7 +16,7 @@ namespace WiimoteInput
     // Forward to InputSource
   }
 
-  bool SourceMapper::IsConnected(WiimoteID Wiimote)
+  bool SourceMapper::IsConnected(WiimoteID Wiimote) const
   {
     // Check Mapping, then Check InputSource
     return false;
@@ -39,7 +39,7 @@ namespace WiimoteInput
     // Forward to InputSource
   }
 
-  const SourceMapping& SourceMapper::GetMapping()
+  const SourceMapping& SourceMapper::GetMapping() const
   {
     return InputMapping;
   }

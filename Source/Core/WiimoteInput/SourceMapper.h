@@ -30,13 +30,13 @@ namespace WiimoteInput
     // IO Interface
     virtual void InterruptChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) override;
     virtual void ControlChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) override;
-    virtual bool IsConnected(WiimoteID Wiimote) override;
+    virtual bool IsConnected(WiimoteID Wiimote) const override;
     virtual std::unique_ptr<ReportBuffer> PollDataAndUpdate(WiimoteID Wiimote) override;
     virtual bool CheckForConnectionAndUpdate(WiimoteID Wiimote) override;
     virtual void SetDisconnected(WiimoteID Wiimote) override;
 
     // Source Mapping Interface
-    virtual const SourceMapping& GetMapping() override;
+    virtual const SourceMapping& GetMapping() const override;
     virtual void SetMapping(SourceMapping NewMapping) override;
     virtual void SetMapping(WiimoteID WiimoteSlot, SourceType NewSource) override;
 

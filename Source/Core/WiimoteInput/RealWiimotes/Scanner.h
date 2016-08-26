@@ -22,7 +22,7 @@ namespace WiimoteInput
   public:
     // Ctr (CBs from SourceMapper)
 
-    virtual bool IsBTAvailable();
+    virtual bool IsBTAvailable() const;
     virtual void SetContinousScanning(bool Enabled);
     virtual void ScanOnce();
 
