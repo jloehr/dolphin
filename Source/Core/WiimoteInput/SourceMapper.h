@@ -3,12 +3,24 @@
 // Refer to the license.txt file included.
 #pragma once
 
+#include <memory>
+
 #include "WiimoteInput/InputSource.h"
 #include "WiimoteInput/RealWiimotes/Scanner.h"
 #include "WiimoteInput/WiimoteInput.h"
 
 namespace WiimoteInput
 {
+  // Main Class of the WiimoteInput Module, does the WiimoteID/Channel -> SourceType mapping
+  //
+  //  SourceMapper -> InputSource -+-> RealDevice
+  //                               | 
+  //                               +-> EmulatedDevice
+  //                               | 
+  //                               +-> HybridDevice -> RealDevice
+  //                                        | 
+  //                                        +-> EmulatedDevice
+  //
   class SourceMapper : public IIO, public ISourceMapping
   {
   public:
@@ -37,7 +49,7 @@ namespace WiimoteInput
     // Emulated Wiimote System
 
     SourceMapping InputMapping;
-    std::array<InputSource, MAX_WIIMOTE_DEVICES> InputSources;
+    std::array<std::shared_ptr<InputSource>, MAX_WIIMOTE_DEVICES> InputSources;
 
     // Unmapped RealWiimotes + BBoard
   };

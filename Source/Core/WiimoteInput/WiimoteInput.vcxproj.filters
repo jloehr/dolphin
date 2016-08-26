@@ -11,10 +11,17 @@
       <Filter>RealWiimotes</Filter>
     </ClInclude>
     <ClInclude Include="InputSource.h" />
+    <ClInclude Include="RealWiimotes\RealDevice.h">
+      <Filter>RealWiimotes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WiimoteInput.cpp" />
     <ClCompile Include="SourceMapper.cpp" />
+    <ClCompile Include="InputSource.cpp" />
+    <ClCompile Include="RealWiimotes\RealDevice.cpp">
+      <Filter>RealWiimotes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="RealWiimotes">

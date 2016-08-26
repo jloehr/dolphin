@@ -1,4 +1,6 @@
 set(SRCS
+  InputSource.cpp
+  RealWiimotes/RealDevice.cpp
   SourceMapper.cpp
   WiimoteInput.cpp
   )

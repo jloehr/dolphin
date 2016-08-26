@@ -3,23 +3,38 @@
 // Refer to the license.txt file included.
 #pragma once
 
+#include <atomic>
+#include <memory>
+#include <mutex>
+
+#include "WiimoteInput/TypesAndConstants.h"
+
 namespace WiimoteInput
 {
-  class InputSource;
+  // Callback Interface for the Input Source or Hybrid Decive to recieve newly read data or a disconnect of a RealDevice
+  class IParentDevice
+  {
+  public:
+    // Called from ---READ & CPU--- thread
+    virtual void OnDeviceRead(ReportBuffer Data) = 0;
+    // Called from ---READ--- thread
+    virtual void OnDeviceDisconnect() = 0;
+  };
 
   // Interface for the actual input source, i.e. Real Wiimote, Emulated or Hybrid
   class IInputDevice
   {
   public:
-    // SetParent(InputSource)
-    // Write
+    virtual void SetParent(std::shared_ptr<IParentDevice> NewParent) = 0;
+    virtual void Write(ReportBuffer Data) = 0;
 
-    // NeedsInputDevice // Used for HybridDevice to check if it has a RealDevice
+    // Used for HybridDevice to check if it has a RealDevice
+    virtual bool HasInputDevice() { return true; };
   };
 
-  // Object that handles source indepentant common stuff, 
+  // Class that handles source indepentant common stuff, 
   // like proper data buffering, checking for the OneButton reconnect etc.
-  class InputSource
+  class InputSource : public IParentDevice
   {
   public:
     // Update
@@ -30,12 +45,17 @@ namespace WiimoteInput
     // HasInputDevice
     // SetInputDevice
 
-    // InputDeviceReadCB
-    // DeviceDisconnectedCB
+    // Parent Device Interface
+    // Called from ---READ & CPU--- thread
+    virtual void OnDeviceRead(ReportBuffer Data) override;
+    // Called from ---READ--- thread
+    virtual void OnDeviceDisconnect() override;
 
   private:
+    // Accessed by ---CPU & READ--- thread
+    std::shared_ptr<IInputDevice> m_InputDevice;
+
     // IsDisconnected
     // InputBuffer
-    // InputDevice : RealDevice, EmulatedDevice or HybridDevice
   };
 }

@@ -47,12 +47,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputSource.h" />
+    <ClInclude Include="RealWiimotes\RealDevice.h" />
     <ClInclude Include="RealWiimotes\Scanner.h" />
     <ClInclude Include="SourceMapper.h" />
     <ClInclude Include="TypesAndConstants.h" />
     <ClInclude Include="WiimoteInput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="InputSource.cpp" />
+    <ClCompile Include="RealWiimotes\RealDevice.cpp" />
     <ClCompile Include="SourceMapper.cpp" />
     <ClCompile Include="WiimoteInput.cpp" />
   </ItemGroup>
