@@ -1,6 +1,6 @@
 set(SRCS
-  WiimoteInput.cpp
   SourceMapper.cpp
+  WiimoteInput.cpp
   )
 
 set(LIBS 
