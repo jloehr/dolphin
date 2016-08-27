@@ -6,8 +6,8 @@
 
 namespace WiimoteInput
 {
-  void RealDevice::SetParent(std::shared_ptr<IParentDevice> NewParent)
+  void RealDevice::SetReadCallback(DeviceReadCallback NewCallback)
   {
-    ParentDevice = NewParent;
+    m_ReadCallback = NewCallback;
   }
 }

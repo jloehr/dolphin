@@ -2,41 +2,93 @@
 // Licensed under GPLv2+
 // Refer to the license.txt file included.
 
+#include "Common/Assert.h"
 #include "WiimoteInput/SourceMapper.h"
 
 namespace WiimoteInput
 {
+  SourceMapper::SourceMapper()
+  {
+    // Create InputSources
+    for (auto& SharedPointer : m_InputSources)
+    {
+      SharedPointer = std::make_shared<InputSource>();
+    }
+  }
+
   void SourceMapper::InterruptChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data)
   {
-    // Forward to InputSource
+    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+
+    if (m_InputMapping[Wiimote] != SourceType::None)
+    {
+      m_InputSources[Wiimote]->InterruptChannel(std::move(Data));
+    }
   }
 
   void SourceMapper::ControlChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data)
   {
-    // Forward to InputSource
+    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+
+    if (m_InputMapping[Wiimote] != SourceType::None)
+    {
+      m_InputSources[Wiimote]->ControlChannel(std::move(Data));
+    }
   }
 
   bool SourceMapper::IsConnected(WiimoteID Wiimote) const
   {
-    // Check Mapping, then Check InputSource
+    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+
+    if (m_InputMapping[Wiimote] != SourceType::None)
+    {
+      return m_InputSources[Wiimote]->HasInputDevice();
+    }
+
     return false;
   }
 
   std::unique_ptr<ReportBuffer> SourceMapper::PollDataAndUpdate(WiimoteID Wiimote)
   {
-    // Update InputSource, then PollData
-    return std::make_unique<ReportBuffer>();
+    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+
+    if (m_InputMapping[Wiimote] != SourceType::None)
+    {
+      std::shared_ptr<InputSource> & InputSource = m_InputSources[Wiimote];
+      InputSource->Update();
+      return InputSource->PollData();
+    }
+    
+    return nullptr;
   }
 
   bool SourceMapper::CheckForConnectionAndUpdate(WiimoteID Wiimote)
   {
-    // Update InputSource, then check if it can be conencted to the Emulator
+    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+
+    if (m_InputMapping[Wiimote] != SourceType::None)
+    {
+      std::shared_ptr<InputSource> & InputSource = m_InputSources[Wiimote];
+      InputSource->Update();
+      if (InputSource->IsRequestingConnection())
+      {
+        InputSource->SetConnected();
+        return true;
+      }
+    }
+
     return false;
   }
 
   void SourceMapper::SetDisconnected(WiimoteID Wiimote)
   {
-    // Forward to InputSource
+    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+
+    if (m_InputMapping[Wiimote] != SourceType::None)
+    {
+      std::shared_ptr<InputSource> & InputSource = m_InputSources[Wiimote];
+      InputSource->SetDisconnected();
+    }
   }
 
   const SourceMapping& SourceMapper::GetMapping() const

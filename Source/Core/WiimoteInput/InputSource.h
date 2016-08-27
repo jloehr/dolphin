@@ -11,51 +11,60 @@
 
 namespace WiimoteInput
 {
-  // Callback Interface for the Input Source or Hybrid Decive to recieve newly read data or a disconnect of a RealDevice
-  class IParentDevice
-  {
-  public:
-    // Called from ---READ & CPU--- thread
-    virtual void OnDeviceRead(std::unique_ptr<ReportBuffer> Data) = 0;
-    // Called from ---READ--- thread
-    virtual void OnDeviceDisconnect() = 0;
-  };
 
   // Interface for the actual input source, i.e. Real Wiimote, Emulated or Hybrid
   class IInputDevice
   {
   public:
-    virtual void SetParent(std::shared_ptr<IParentDevice> NewParent) = 0;
+    virtual ~IInputDevice() = default;
+
+    using DeviceReadCallback = std::function<void(std::unique_ptr<ReportBuffer>)>;
+
+    virtual void SetReadCallback(DeviceReadCallback NewCallback) = 0;
     virtual void Write(std::unique_ptr<ReportBuffer> Data) = 0;
 
+    // Used for RealDevice if it is still connected and no error occurred
+    virtual bool IsGone() = 0;
+    // Used for EmulatedDevice as Emulation Pump
+    virtual bool Update() = 0;
     // Used for HybridDevice to check if it has a RealDevice
-    virtual bool HasInputDevice() { return true; };
+    virtual bool HasInputDevice() = 0;
   };
 
   // Class that handles source indepentant common stuff, 
   // like proper data buffering, checking for the OneButton reconnect etc.
-  class InputSource : public IParentDevice
+  class InputSource
   {
   public:
-    // Update
-    // Write (Control/Interrupt)
-    // PollData
-    // OnDisconnect
+    void InterruptChannel(std::unique_ptr<ReportBuffer> Data);
+    void ControlChannel(std::unique_ptr<ReportBuffer> Data);
 
-    // HasInputDevice
+    void Update();
+    std::unique_ptr<ReportBuffer> PollData();
+
+    inline bool IsConnected() const;
+    inline bool IsRequestingConnection() const;
+    void SetConnected();
+    void SetDisconnected();
+
+    bool HasInputDevice();
     // SetInputDevice
 
-    // Parent Device Interface
     // Called from ---READ & CPU--- thread
-    virtual void OnDeviceRead(std::unique_ptr<ReportBuffer> Data) override;
-    // Called from ---READ--- thread
-    virtual void OnDeviceDisconnect() override;
+    void OnDeviceRead(std::unique_ptr<ReportBuffer> Data);
 
   private:
-    // Accessed by ---CPU & READ--- thread
+    enum class ConnectionStatus
+    {
+      Disconnected,
+      Connected,
+      RequestingConnection,
+    };
+    
     std::shared_ptr<IInputDevice> m_InputDevice;
 
-    // IsDisconnected
+    // Accessed by ---READ & CPU--- thread
+    std::atomic<ConnectionStatus> m_ConnectionStatus = ConnectionStatus::Disconnected;
     // InputBuffer
   };
 }

@@ -21,9 +21,10 @@ namespace WiimoteInput
   //                                        | 
   //                                        +-> EmulatedDevice
   //
-  class SourceMapper : public IIO, public ISourceMapping
+  class SourceMapper final : public IIO, public ISourceMapping
   {
   public:
+    SourceMapper();
 
     inline IScanner & GetScannerInterface() { return m_Scanner; };
 

@@ -10,9 +10,11 @@ namespace WiimoteInput
   class RealDevice : public IInputDevice
   {
   public:
-    virtual void SetParent(std::shared_ptr<IParentDevice> NewParent) override;
+    virtual ~RealDevice() override = default;
+
+    virtual void SetReadCallback(DeviceReadCallback NewCallback) override;
 
   private:
-    std::shared_ptr<IParentDevice> ParentDevice = nullptr;
+    DeviceReadCallback m_ReadCallback = nullptr;
   };
 }

@@ -15,7 +15,8 @@ namespace WiimoteInput
 
   enum class SourceType
   {
-    Real = 0x00
+    None = 0x00,
+    Real = 0x01,
   };
 
   using WiimoteID = u8;
