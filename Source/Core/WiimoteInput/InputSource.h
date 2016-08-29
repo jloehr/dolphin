@@ -11,7 +11,6 @@
 
 namespace WiimoteInput
 {
-
   // Interface for the actual input source, i.e. Real Wiimote, Emulated or Hybrid
   class IInputDevice
   {
@@ -27,8 +26,6 @@ namespace WiimoteInput
     virtual bool IsGone() = 0;
     // Used for EmulatedDevice as Emulation Pump
     virtual bool Update() = 0;
-    // Used for HybridDevice to check if it has a RealDevice
-    virtual bool HasInputDevice() = 0;
   };
 
   // Class that handles source indepentant common stuff, 
@@ -42,29 +39,31 @@ namespace WiimoteInput
     void Update();
     std::unique_ptr<ReportBuffer> PollData();
 
-    inline bool IsConnected() const;
+    inline bool IsVirtuallyConnected() const;
     inline bool IsRequestingConnection() const;
     void SetConnected();
     void SetDisconnected();
 
-    bool HasInputDevice();
-    // SetInputDevice
+    bool HasInputDevice() const;
+    bool HasInputDeviceAndIsGood() const;
+    // Called by SourceMapping changing threads (UI, DisconnectWatcher, etc.)
+    std::shared_ptr<IInputDevice> SwapInputDevice(std::shared_ptr<IInputDevice> OtherInputDevice);
 
     // Called from ---READ & CPU--- thread
     void OnDeviceRead(std::unique_ptr<ReportBuffer> Data);
 
   private:
-    enum class ConnectionStatus
+    enum class VirtualConnectionStatus
     {
       Disconnected,
       Connected,
       RequestingConnection,
     };
-    
+
     std::shared_ptr<IInputDevice> m_InputDevice;
 
     // Accessed by ---READ & CPU--- thread
-    std::atomic<ConnectionStatus> m_ConnectionStatus = ConnectionStatus::Disconnected;
+    std::atomic<VirtualConnectionStatus> m_VirtualConnectionStatus = VirtualConnectionStatus::Disconnected;
     // InputBuffer
   };
 }

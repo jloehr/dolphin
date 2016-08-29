@@ -42,7 +42,7 @@ namespace WiimoteInput
 
     if (m_InputMapping[Wiimote] != SourceType::None)
     {
-      return m_InputSources[Wiimote]->HasInputDevice();
+      return (m_InputSources[Wiimote]->HasInputDeviceAndIsGood() && m_InputSources[Wiimote]->IsVirtuallyConnected());
     }
 
     return false;

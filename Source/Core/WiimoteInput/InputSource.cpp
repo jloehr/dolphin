@@ -18,9 +18,11 @@ namespace WiimoteInput
 
   void InputSource::Update()
   {
-    if (m_InputDevice)
+    std::shared_ptr<IInputDevice> ThreadGuardedInputDevice = m_InputDevice;
+
+    if (ThreadGuardedInputDevice)
     {
-      m_InputDevice->Update();
+      ThreadGuardedInputDevice->Update();
     }
   }
 
@@ -30,44 +32,43 @@ namespace WiimoteInput
     return std::unique_ptr<ReportBuffer>();
   }
 
-  inline bool InputSource::IsConnected() const
+  inline bool InputSource::IsVirtuallyConnected() const
   {
-    return (m_ConnectionStatus.load() == ConnectionStatus::Connected);
+    return (m_VirtualConnectionStatus.load() == VirtualConnectionStatus::Connected);
   }
 
   inline bool InputSource::IsRequestingConnection() const
   {
-    return (m_ConnectionStatus.load() == ConnectionStatus::RequestingConnection);
+    return (m_VirtualConnectionStatus.load() == VirtualConnectionStatus::RequestingConnection);
   }
 
   void InputSource::SetConnected()
   {
     // Reenable Continous Reporting
-    m_ConnectionStatus.store(ConnectionStatus::Connected);
+    m_VirtualConnectionStatus.store(VirtualConnectionStatus::Connected);
   }
 
   void InputSource::SetDisconnected()
   {
     // Deavtivate Continous Reporting for RealWiimotes
-    m_ConnectionStatus.store(ConnectionStatus::Disconnected);
+    m_VirtualConnectionStatus.store(VirtualConnectionStatus::Disconnected);
   }
 
-  bool InputSource::HasInputDevice()
+  bool InputSource::HasInputDevice() const
   {
-    if (!m_InputDevice)
+    return (m_InputDevice != nullptr);
+  }
+
+  bool InputSource::HasInputDeviceAndIsGood() const
+  {
+    std::shared_ptr<IInputDevice> ThreadGuardedInputDevice = m_InputDevice;
+
+    if (!ThreadGuardedInputDevice)
     {
       return false;
     }
 
-    // Check if the RealDevice is disconnected
-    if (m_InputDevice->IsGone())
-    {
-      m_InputDevice.reset();
-      return false;
-    }
-
-    // Check if the HybridDevic has a RealDevice
-    if (!m_InputDevice->HasInputDevice())
+    if (ThreadGuardedInputDevice->IsGone())
     {
       return false;
     }
@@ -75,10 +76,23 @@ namespace WiimoteInput
     return true;
   }
 
+  // Called by SourceMapping changing threads (UI, DisconnectWatcher, etc.)
+  std::shared_ptr<IInputDevice> InputSource::SwapInputDevice(std::shared_ptr<IInputDevice> OtherInputDevice)
+  {
+    m_InputDevice->SetReadCallback(nullptr);
+
+    OtherInputDevice->SetReadCallback(std::bind(&InputSource::OnDeviceRead, this, std::placeholders::_1));
+    m_InputDevice.swap(OtherInputDevice);
+
+    m_VirtualConnectionStatus.store((m_InputDevice == nullptr) ? VirtualConnectionStatus::Disconnected : VirtualConnectionStatus::RequestingConnection);
+
+    return OtherInputDevice;
+  }
+
   // Called from ---READ & CPU--- thread
   void InputSource::OnDeviceRead(std::unique_ptr<ReportBuffer> Data)
   {
-    if (IsConnected())
+    if (IsVirtuallyConnected())
     {
       // Append Data to ReadQueue
     }
