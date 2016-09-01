@@ -4,6 +4,7 @@
 #pragma once
 
 #include <array>
+#include <atomic>
 
 #include "Common/CommonTypes.h"
 
@@ -20,6 +21,6 @@ namespace WiimoteInput
   };
 
   using WiimoteID = u8;
-  using SourceMapping = std::array<SourceType, NUM_WIIMOTE_DEVICES>;
+  using SourceMapping = std::array<std::atomic<SourceType>, NUM_WIIMOTE_DEVICES>;
   using ReportBuffer = std::array<u8, MAX_REPORT_SIZE>;
 }

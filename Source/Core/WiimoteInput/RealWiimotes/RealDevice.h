@@ -12,9 +12,10 @@ namespace WiimoteInput
   public:
     virtual ~RealDevice() override = default;
 
-    virtual void SetReadCallback(DeviceReadCallback NewCallback) override;
+    virtual void SetReadCallback(DeviceReadCallback new_callback) override;
 
   private:
-    DeviceReadCallback m_ReadCallback = nullptr;
+    DeviceReadCallback m_read_callback = nullptr;
+    std::mutex m_read_callback_mutex;
   };
 }

@@ -2,108 +2,100 @@
 // Licensed under GPLv2+
 // Refer to the license.txt file included.
 
+#include <list>
+
 #include "Common/Assert.h"
 #include "WiimoteInput/SourceMapper.h"
 
 namespace WiimoteInput
 {
-  SourceMapper::SourceMapper()
+  void SourceMapper::InterruptChannel(WiimoteID wiimote, u16 channel, std::unique_ptr<ReportBuffer> data)
   {
-    // Create InputSources
-    for (auto& SharedPointer : m_InputSources)
+    _dbg_assert_msg_(WIIMOTE, wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+
+    if (m_input_mapping[wiimote].load(std::memory_order_relaxed) != SourceType::None)
     {
-      SharedPointer = std::make_shared<InputSource>();
+      m_input_sources[wiimote].InterruptChannel(std::move(data));
     }
   }
 
-  void SourceMapper::InterruptChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data)
+  void SourceMapper::ControlChannel(WiimoteID wiimote, u16 channel, std::unique_ptr<ReportBuffer> data)
   {
-    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+    _dbg_assert_msg_(WIIMOTE, wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
 
-    if (m_InputMapping[Wiimote] != SourceType::None)
+    if (m_input_mapping[wiimote].load(std::memory_order_relaxed) != SourceType::None)
     {
-      m_InputSources[Wiimote]->InterruptChannel(std::move(Data));
+      m_input_sources[wiimote].ControlChannel(std::move(data));
     }
   }
 
-  void SourceMapper::ControlChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data)
+  bool SourceMapper::IsConnected(WiimoteID wiimote) const
   {
-    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+    _dbg_assert_msg_(WIIMOTE, wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
 
-    if (m_InputMapping[Wiimote] != SourceType::None)
+    if (m_input_mapping[wiimote].load(std::memory_order_relaxed) != SourceType::None)
     {
-      m_InputSources[Wiimote]->ControlChannel(std::move(Data));
-    }
-  }
-
-  bool SourceMapper::IsConnected(WiimoteID Wiimote) const
-  {
-    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
-
-    if (m_InputMapping[Wiimote] != SourceType::None)
-    {
-      return (m_InputSources[Wiimote]->HasInputDeviceAndIsGood() && m_InputSources[Wiimote]->IsVirtuallyConnected());
+      const InputSource& input_source = m_input_sources[wiimote];
+      return (input_source.HasInputDeviceAndIsGood() && input_source.IsVirtuallyConnected());
     }
 
     return false;
   }
 
-  std::unique_ptr<ReportBuffer> SourceMapper::PollDataAndUpdate(WiimoteID Wiimote)
+  std::unique_ptr<ReportBuffer> SourceMapper::PollDataAndUpdate(WiimoteID wiimote)
   {
-    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+    _dbg_assert_msg_(WIIMOTE, wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
 
-    if (m_InputMapping[Wiimote] != SourceType::None)
+    if (m_input_mapping[wiimote].load(std::memory_order_relaxed) != SourceType::None)
     {
-      std::shared_ptr<InputSource> & InputSource = m_InputSources[Wiimote];
-      InputSource->Update();
-      return InputSource->PollData();
+      InputSource& input_source = m_input_sources[wiimote];
+      input_source.Update();
+      return input_source.PollData();
     }
     
     return nullptr;
   }
 
-  bool SourceMapper::CheckForConnectionAndUpdate(WiimoteID Wiimote)
+  bool SourceMapper::CheckForConnectionAndUpdate(WiimoteID wiimote)
   {
-    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+    _dbg_assert_msg_(WIIMOTE, wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
 
-    if (m_InputMapping[Wiimote] != SourceType::None)
+    if (m_input_mapping[wiimote].load(std::memory_order_relaxed) != SourceType::None)
     {
-      std::shared_ptr<InputSource> & InputSource = m_InputSources[Wiimote];
-      InputSource->Update();
-      if (InputSource->IsRequestingConnection())
-      {
-        InputSource->SetConnected();
-        return true;
-      }
+      InputSource& input_source = m_input_sources[wiimote];
+      input_source.Update();
+      return input_source.SetConnectedIfRequestingConnection();
     }
 
     return false;
   }
 
-  void SourceMapper::SetDisconnected(WiimoteID Wiimote)
+  void SourceMapper::SetDisconnected(WiimoteID wiimote)
   {
-    _dbg_assert_msg_(WIIMOTE, Wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
+    _dbg_assert_msg_(WIIMOTE, wiimote < NUM_WIIMOTE_DEVICES, "WiimoteID = %i >= NumWiimotes = %i");
 
-    if (m_InputMapping[Wiimote] != SourceType::None)
+    if (m_input_mapping[wiimote].load(std::memory_order_relaxed) != SourceType::None)
     {
-      std::shared_ptr<InputSource> & InputSource = m_InputSources[Wiimote];
-      InputSource->SetDisconnected();
+      m_input_sources[wiimote].SetDisconnected();
     }
   }
 
   const SourceMapping& SourceMapper::GetMapping() const
   {
-    return m_InputMapping;
+    return m_input_mapping;
   }
 
-  void SourceMapper::SetMapping(SourceMapping NewMapping)
+  void SourceMapper::SetMapping(SourceMapping new_mapping)
   {
     // Check if something changed, if so get new number of real wiimotes
     // swirl real wiimotes to match new number
+    std::lock_guard<std::mutex> lock_guard(m_input_sources_modifier_lock);
+  
   }
 
-  void SourceMapper::SetMapping(WiimoteID WiimoteSlot, SourceType NewSource)
+  void SourceMapper::SetMapping(WiimoteID wiimote, SourceType new_source)
   {
+    std::lock_guard<std::mutex> lock_guard(m_input_sources_modifier_lock);
     // Check if mapping is different
     // Change InputDevice if InputSource
   }

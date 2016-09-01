@@ -24,32 +24,34 @@ namespace WiimoteInput
   class SourceMapper final : public IIO, public ISourceMapping
   {
   public:
-    SourceMapper();
-
-    inline IScanner & GetScannerInterface() { return m_Scanner; };
+    inline IScanner & GetScannerInterface() { return m_scanner; };
 
     // IO Interface
-    virtual void InterruptChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) override;
-    virtual void ControlChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) override;
-    virtual bool IsConnected(WiimoteID Wiimote) const override;
-    virtual std::unique_ptr<ReportBuffer> PollDataAndUpdate(WiimoteID Wiimote) override;
-    virtual bool CheckForConnectionAndUpdate(WiimoteID Wiimote) override;
-    virtual void SetDisconnected(WiimoteID Wiimote) override;
+    virtual void InterruptChannel(WiimoteID wiimote, u16 channel, std::unique_ptr<ReportBuffer> data) override;
+    virtual void ControlChannel(WiimoteID wiimote, u16 channel, std::unique_ptr<ReportBuffer> data) override;
+    virtual bool IsConnected(WiimoteID wiimote) const override;
+    virtual std::unique_ptr<ReportBuffer> PollDataAndUpdate(WiimoteID wiimote) override;
+    virtual bool CheckForConnectionAndUpdate(WiimoteID wiimote) override;
+    virtual void SetDisconnected(WiimoteID wiimote) override;
 
     // Source Mapping Interface
     virtual const SourceMapping& GetMapping() const override;
-    virtual void SetMapping(SourceMapping NewMapping) override;
-    virtual void SetMapping(WiimoteID WiimoteSlot, SourceType NewSource) override;
+    virtual void SetMapping(SourceMapping new_mapping) override;
+    virtual void SetMapping(WiimoteID wiimote, SourceType new_source) override;
 
     // Called by Scanner in Scanner Thread
     // CB OnNewWiimoteFound
     // CB OnNewBBFound
 
   private:
-    Scanner m_Scanner;
+    Scanner m_scanner;
     // Emulated Wiimote System
 
-    SourceMapping m_InputMapping;
-    std::array<std::shared_ptr<InputSource>, NUM_WIIMOTE_DEVICES> m_InputSources;
+    SourceMapping m_input_mapping;
+    std::array<InputSource, NUM_WIIMOTE_DEVICES> m_input_sources;
+    // Used for mutual exclusion when the Disconnect Watcher and UI threads
+    // try to change the mapping at the same time
+    std::mutex m_input_sources_modifier_lock;
+
   };
 }

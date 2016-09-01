@@ -17,14 +17,14 @@ namespace WiimoteInput
   class IIO
   {
   public:
-    virtual void InterruptChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) = 0;
-    virtual void ControlChannel(WiimoteID Wiimote, u16 Channel, std::unique_ptr<ReportBuffer> Data) = 0;
+    virtual void InterruptChannel(WiimoteID wiimote, u16 channel, std::unique_ptr<ReportBuffer> data) = 0;
+    virtual void ControlChannel(WiimoteID wiimote, u16 channel, std::unique_ptr<ReportBuffer> data) = 0;
     // Checks if the actual physical mapped device is currently connected
-    virtual bool IsConnected(WiimoteID Wiimote) const = 0;
-    virtual std::unique_ptr<ReportBuffer> PollDataAndUpdate(WiimoteID Wiimote) = 0;
-    virtual bool CheckForConnectionAndUpdate(WiimoteID Wiimote) = 0;
+    virtual bool IsConnected(WiimoteID wiimote) const = 0;
+    virtual std::unique_ptr<ReportBuffer> PollDataAndUpdate(WiimoteID wiimote) = 0;
+    virtual bool CheckForConnectionAndUpdate(WiimoteID wiimote) = 0;
     // Called when the Emulator disconnects the virutal Wiimote, used to enable OneButton-reconnect
-    virtual void SetDisconnected(WiimoteID Wiimote) = 0;
+    virtual void SetDisconnected(WiimoteID wiimote) = 0;
   };
 
   inline IIO& GetIO();
@@ -46,8 +46,8 @@ namespace WiimoteInput
   {
   public:
     virtual const SourceMapping& GetMapping() const = 0;
-    virtual void SetMapping(SourceMapping NewMapping) = 0;
-    virtual void SetMapping(WiimoteID WiimoteSlot, SourceType NewSource) = 0;
+    virtual void SetMapping(SourceMapping new_mapping) = 0;
+    virtual void SetMapping(WiimoteID wiimote, SourceType new_source) = 0;
   };
 
   inline ISourceMapping& GetSourceMapping();
@@ -57,7 +57,7 @@ namespace WiimoteInput
   {
   public:
     virtual bool IsBTAvailable() const = 0;
-    virtual void SetContinousScanning(bool Enabled) = 0;
+    virtual void SetContinousScanning(bool enabled) = 0;
     virtual void ScanOnce() = 0;
   };
 

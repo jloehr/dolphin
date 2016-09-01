@@ -6,8 +6,10 @@
 
 namespace WiimoteInput
 {
-  void RealDevice::SetReadCallback(DeviceReadCallback NewCallback)
+  void RealDevice::SetReadCallback(DeviceReadCallback new_callback)
   {
-    m_ReadCallback = NewCallback;
+    std::lock_guard<std::mutex> lock_guard(m_read_callback_mutex);
+
+    m_read_callback = new_callback;
   }
 }

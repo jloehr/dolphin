@@ -7,20 +7,20 @@
 
 namespace WiimoteInput
 {
-  SourceMapper g_WiimoteInput;
+  SourceMapper g_Wiimote_Input;
 
   IIO & GetIO()
   {
-    return g_WiimoteInput;
+    return g_Wiimote_Input;
   }
 
   ISourceMapping & GetSourceMapping()
   {
-    return g_WiimoteInput;
+    return g_Wiimote_Input;
   }
 
   IScanner & GetScanner()
   {
-    return g_WiimoteInput.GetScannerInterface();
+    return g_Wiimote_Input.GetScannerInterface();
   }
 }
